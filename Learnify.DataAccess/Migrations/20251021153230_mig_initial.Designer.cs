@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Learnify.DataAccess.Migrations
 {
-    [DbContext(typeof(ApplicationContext))]
+    [DbContext(typeof(LearnifyContext))]
     [Migration("20251021153230_mig_initial")]
     partial class mig_initial
     {

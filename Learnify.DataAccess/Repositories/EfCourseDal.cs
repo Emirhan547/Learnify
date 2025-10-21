@@ -12,17 +12,11 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfCourseDal : EfGenericRepository<Course>, ICourseDal
     {
-        private readonly ApplicationContext _context;
-        public EfCourseDal(ApplicationContext context, DbSet<Course> set) : base(context, set)
+        private readonly LearnifyContext _context;
+        public EfCourseDal(LearnifyContext context, DbSet<Course> set) : base(context, set)
         {
             _context = context;
         }
-
-        public async Task<List<Course>> GetCoursesWithCategoryAsync()
-        {
-           return await _context.Courses
-                .Include(x => x.Category)
-                .ToListAsync();
-        }
+        
     }
 }

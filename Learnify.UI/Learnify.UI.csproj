@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Learnify.Business\Learnify.Business.csproj" />
-    <ProjectReference Include="..\Learnify.Dto\Learnify.Dto.csproj" />
   </ItemGroup>
 
 </Project>

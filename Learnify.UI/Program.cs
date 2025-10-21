@@ -1,19 +1,27 @@
+using Learnify.Business.Abstract;
+using Learnify.Business.Concrete;
+using Learnify.Business.MappingProfiles;
+using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
+using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ApplicationContext>(options =>
+builder.Services.AddDbContext<LearnifyContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2?? Identity
 builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
-    .AddEntityFrameworkStores<ApplicationContext>()
+    .AddEntityFrameworkStores<LearnifyContext>()
     .AddDefaultTokenProviders();
+builder.Services.AddAutoMapper(typeof(CourseMapping));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ICourseService, CourseManager>();
+builder.Services.AddScoped<ICourseDal, EfCourseDal>();
 
 var app = builder.Build();
 

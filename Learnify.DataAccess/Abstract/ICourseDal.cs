@@ -9,6 +9,6 @@ namespace Learnify.DataAccess.Abstract
 {
     public interface ICourseDal: IGenericDal<Course>
     {
-        Task<List<Course>> GetCoursesWithCategoryAsync();
+        
     }
 }

@@ -12,7 +12,7 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfEnrollmentDal : EfGenericRepository<Enrollment>, IEnrollmentDal
     {
-        public EfEnrollmentDal(ApplicationContext context, DbSet<Enrollment> set) : base(context, set)
+        public EfEnrollmentDal(LearnifyContext context, DbSet<Enrollment> set) : base(context, set)
         {
         }
     }

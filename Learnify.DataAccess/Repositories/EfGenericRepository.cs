@@ -8,46 +8,66 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfGenericRepository<T> : IGenericDal<T> where T : class
     {
-        private readonly ApplicationContext _context;
-        private readonly DbSet<T> _set;
+        protected readonly LearnifyContext _context;
+        private readonly DbSet<T> _dbSet;
 
-        public EfGenericRepository(ApplicationContext context, DbSet<T> set)
+        public EfGenericRepository(LearnifyContext context, DbSet<T> dbSet)
         {
             _context = context;
-            _set = set;
+            _dbSet = dbSet;
         }
 
-        public async Task InsertAsync(T entity)
+        public async Task<List<T>> GetAllAsync()
         {
-            await _set.AddAsync(entity);
+            return await _dbSet.ToListAsync();
+        }
+
+        public async Task<T> GetByIdAsync(int id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public async Task AddAsync(T entity)
+        {
+            await _dbSet.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(T entity)
         {
-            _set.Update(entity);
+            _dbSet.Update(entity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(T entity)
+        public async Task DeleteAsync(int id)
         {
-            _set.Remove(entity);
-            await _context.SaveChangesAsync();
+            var entity = await _dbSet.FindAsync(id);
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<List<T>> GetAllWithIncludeAsync(params Expression<Func<T, object>>[] includeProperties)
         {
-            return await _set.FindAsync(id);
+            IQueryable<T> query = _dbSet.AsQueryable();
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+            return await query.ToListAsync();
         }
 
-        public async Task<List<T>> GetAllAsync()
+        public async Task<T> GetByIdWithIncludeAsync(int id, params Expression<Func<T, object>>[] includeProperties)
         {
-            return await _set.ToListAsync();
-        }
-
-        public async Task<List<T>> GetListByFilterAsync(Expression<Func<T, bool>> filter)
-        {
-            return await _set.Where(filter).ToListAsync();
+            IQueryable<T> query = _dbSet.AsQueryable();
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+            // id'yi primary key olarak varsayıyoruz
+            return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
         }
     }
 }

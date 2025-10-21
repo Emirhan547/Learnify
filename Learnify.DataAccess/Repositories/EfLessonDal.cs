@@ -12,7 +12,7 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfLessonDal : EfGenericRepository<Lesson>, ILessonDal
     {
-        public EfLessonDal(ApplicationContext context, DbSet<Lesson> set) : base(context, set)
+        public EfLessonDal(LearnifyContext context, DbSet<Lesson> set) : base(context, set)
         {
         }
     }

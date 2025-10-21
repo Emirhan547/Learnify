@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Context
 {
-    public class ApplicationContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
+    public class LearnifyContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
-        public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
+        public LearnifyContext(DbContextOptions<LearnifyContext> options) : base(options) { }
 
         public DbSet<Course> Courses { get; set; }
         public DbSet<Category> Categories { get; set; }

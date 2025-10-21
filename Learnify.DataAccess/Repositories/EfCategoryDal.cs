@@ -12,7 +12,7 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfCategoryDal : EfGenericRepository<Category>, ICategoryDal
     {
-        public EfCategoryDal(ApplicationContext context, DbSet<Category> set) : base(context, set)
+        public EfCategoryDal(LearnifyContext context, DbSet<Category> set) : base(context, set)
         {
         }
     }

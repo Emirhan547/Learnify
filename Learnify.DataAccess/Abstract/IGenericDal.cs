@@ -9,11 +9,14 @@ namespace Learnify.DataAccess.Abstract
 {
     public interface IGenericDal<T> where T : class
     {
-        Task InsertAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task DeleteAsync(T entity);
-        Task<T?> GetByIdAsync(int id);
         Task<List<T>> GetAllAsync();
-        Task<List<T>> GetListByFilterAsync(Expression<Func<T, bool>> filter);
+        Task<T> GetByIdAsync(int id);
+        Task AddAsync(T entity);
+        Task UpdateAsync(T entity);
+        Task DeleteAsync(int id);
+
+        // Include'lu veri çekme
+        Task<List<T>> GetAllWithIncludeAsync(params Expression<Func<T, object>>[] includeProperties);
+        Task<T> GetByIdWithIncludeAsync(int id, params Expression<Func<T, object>>[] includeProperties);
     }
 }

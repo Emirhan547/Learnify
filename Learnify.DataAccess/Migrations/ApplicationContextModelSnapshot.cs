@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Learnify.DataAccess.Migrations
 {
-    [DbContext(typeof(ApplicationContext))]
+    [DbContext(typeof(LearnifyContext))]
     partial class ApplicationContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

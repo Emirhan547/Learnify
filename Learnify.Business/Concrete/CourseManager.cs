@@ -25,14 +25,14 @@ namespace Learnify.Business.Concrete
 
         public async Task<List<ResultCourseDto>> GetAllAsync()
         {
-            var courses = await _courseDal.GetAllWithIncludeAsync(x => x.Category, x => x.Instructor);
-            return _mapper.Map<List<ResultCourseDto>>(courses);
+            var values = await _courseDal.GetAllWithIncludeAsync(x => x.Category, x => x.Instructor);
+            return _mapper.Map<List<ResultCourseDto>>(values);
         }
 
         public async Task<ResultCourseDto> GetByIdAsync(int id)
         {
-            var course = await _courseDal.GetByIdWithIncludeAsync(id, x => x.Category, x => x.Instructor);
-            return _mapper.Map<ResultCourseDto>(course);
+            var value = await _courseDal.GetByIdWithIncludeAsync(id, x => x.Category, x => x.Instructor);
+            return _mapper.Map<ResultCourseDto>(value);
         }
 
         public async Task AddAsync(CreateCourseDto dto)

@@ -128,7 +128,7 @@ namespace Learnify.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("InstructorID")
+                    b.Property<int?>("InstructorID")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
@@ -343,8 +343,7 @@ namespace Learnify.DataAccess.Migrations
                     b.HasOne("Learnify.Entity.Concrete.AppUser", "Instructor")
                         .WithMany("Courses")
                         .HasForeignKey("InstructorID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Category");
 

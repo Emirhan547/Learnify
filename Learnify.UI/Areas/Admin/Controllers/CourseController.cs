@@ -3,16 +3,11 @@ using Learnify.DTO.DTOs.CourseDto;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace Learnify.UI.Controllers
+namespace Learnify.UI.Areas.Admin.Controllers
 {
-    public class CourseController : Controller
+    [Area("Admin")]
+    public class CourseController (ICourseService _courseService) : Controller
     {
-        private readonly ICourseService _courseService;
-
-        public CourseController(ICourseService courseService)
-        {
-            _courseService = courseService;
-        }
 
         public async Task<IActionResult> Index()
         {

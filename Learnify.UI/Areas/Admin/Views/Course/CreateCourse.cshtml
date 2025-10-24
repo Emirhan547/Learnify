@@ -25,10 +25,12 @@
         <label>Kategori</label>
         <select asp-for="CategoryID" class="form-control">
             <option value="">Kategori Seçiniz</option>
-            <option value="1">Yazılım</option>
-            <option value="2">Tasarım</option>
-            <option value="3">Veri Bilimi</option>
+            @foreach (var category in ViewBag.Categories)
+            {
+                <option value="@category.CategoryID">@category.CategoryName</option>
+            }
         </select>
+
     </div>
 
     <div class="mb-3">

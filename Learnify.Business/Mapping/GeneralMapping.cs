@@ -2,6 +2,7 @@
 using Learnify.DTO.DTOs.CategoryDto;
 using Learnify.DTO.DTOs.CourseDto;
 using Learnify.DTO.DTOs.EnrollmentDto;
+using Learnify.DTO.DTOs.InstructorDto;
 using Learnify.DTO.DTOs.LessonDto;
 using Learnify.Entity.Concrete;
 using System;
@@ -26,8 +27,9 @@ namespace Learnify.Business.MappingProfiles
             CreateMap<Course, CreateCourseDto>().ReverseMap();
             CreateMap<Course, UpdateCourseDto>().ReverseMap();
             CreateMap<Course, ResultCourseDto>()
-                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
-                .ForMember(dest => dest.InstructorName, opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.UserName : string.Empty));
+    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.CategoryName : string.Empty))
+    .ForMember(dest => dest.InstructorName, opt => opt.MapFrom(src => src.Instructor != null ? src.Instructor.UserName : string.Empty));
+
 
             // ✅ Lesson Mappings
             CreateMap<Lesson, CreateLessonDto>().ReverseMap();
@@ -41,6 +43,12 @@ namespace Learnify.Business.MappingProfiles
             CreateMap<Enrollment, ResultEnrollmentDto>()
                 .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student != null ? src.Student.UserName : string.Empty))
                 .ForMember(dest => dest.CourseTitle, opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : string.Empty));
+
+            // ✅ Instructor Mappings
+            CreateMap<Instructor, CreateInstructorDto>().ReverseMap();
+            CreateMap<Instructor, UpdateInstructorDto>().ReverseMap();
+            CreateMap<Instructor, ResultInstructorDto>();
+
         }
     }
 }

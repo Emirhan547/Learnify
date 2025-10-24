@@ -9,6 +9,6 @@ namespace Learnify.DTO.DTOs.CategoryDto
     public class UpdateCategoryDto
     {
         public int CategoryID { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public string CategoryName { get; set; } = string.Empty;
     }
 }

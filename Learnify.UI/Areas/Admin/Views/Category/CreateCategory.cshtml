@@ -1,0 +1,15 @@
+﻿@using Learnify.DTO.DTOs.CategoryDto
+@model CreateCategoryDto
+@{
+    ViewData["Title"] = "Yeni Kategori Ekle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<form asp-action="CreateCategory" method="post" class="container mt-4">
+    <div class="mb-3">
+        <label>Kategori Adı</label>
+        <input asp-for="CategoryName" class="form-control" />
+    </div>
+
+    <button class="btn btn-success">Kaydet</button>
+</form>

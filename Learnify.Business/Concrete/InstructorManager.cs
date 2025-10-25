@@ -1,15 +1,9 @@
 ﻿using AutoMapper;
 using Learnify.Business.Abstract;
 using Learnify.DataAccess.Abstract;
-using Learnify.DataAccess.Repositories;
-using Learnify.DTO.DTOs.EnrollmentDto;
 using Learnify.DTO.DTOs.InstructorDto;
-using Learnify.DTO.DTOs.LessonDto;
 using Learnify.Entity.Concrete;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Learnify.Business.Concrete
@@ -27,7 +21,8 @@ namespace Learnify.Business.Concrete
 
         public async Task AddAsync(CreateInstructorDto dto)
         {
-            var entity = _mapper.Map<Instructor>(dto);
+            // ✅ AppUser olarak map ediliyor
+            var entity = _mapper.Map<AppUser>(dto);
             await _instructorDal.AddAsync(entity);
         }
 
@@ -38,19 +33,21 @@ namespace Learnify.Business.Concrete
 
         public async Task<List<ResultInstructorDto>> GetAllAsync()
         {
-            var values = await _instructorDal.GetAllWithIncludeAsync(x => x.InstructorID);
+            // ✅ Include kullanılmıyor çünkü AppUser direkt kullanılıyor
+            var values = await _instructorDal.GetAllAsync();
             return _mapper.Map<List<ResultInstructorDto>>(values);
         }
 
         public async Task<ResultInstructorDto> GetByIdAsync(int id)
         {
-            var value = await _instructorDal.GetByIdWithIncludeAsync(id, x => x.InstructorID);
+            // ✅ Include kullanılmıyor
+            var value = await _instructorDal.GetByIdAsync(id);
             return _mapper.Map<ResultInstructorDto>(value);
         }
 
         public async Task UpdateAsync(UpdateInstructorDto dto)
         {
-            var entity = _mapper.Map<Instructor>(dto);
+            var entity = _mapper.Map<AppUser>(dto);
             await _instructorDal.UpdateAsync(entity);
         }
     }

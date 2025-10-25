@@ -9,7 +9,10 @@ namespace Learnify.Entity.Concrete
     public class Category
     {
         public int CategoryID { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
+
+        // ✅ Veritabanındaki kolon adıyla eşleştirildi
+        public string Name { get; set; } = string.Empty;
+
         public ICollection<Course>? Courses { get; set; }
     }
 }

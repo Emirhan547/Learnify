@@ -1,16 +1,11 @@
 ﻿using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
-using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Learnify.DataAccess.EntityFramework
+namespace Learnify.DataAccess.Repositories
 {
-    public class EfInstructorDal : GenericRepository<Instructor>, IInstructorDal
+    // ✅ AppUser ile çalışıyor
+    public class EfInstructorDal : GenericRepository<AppUser>, IInstructorDal
     {
         public EfInstructorDal(LearnifyContext context) : base(context)
         {

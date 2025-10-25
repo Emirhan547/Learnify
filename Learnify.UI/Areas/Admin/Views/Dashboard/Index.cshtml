@@ -1,0 +1,200 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="right_content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="heading1 mb-4">
+                    <h2 class="fw-bold">Dashboard</h2>
+                    <p class="text-muted">Learnify Yönetim Paneline Hoş Geldiniz</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- İstatistik Kartları -->
+        <div class="row">
+            <!-- Toplam Kurslar -->
+            <div class="col-md-4 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Toplam Kurslar</h6>
+                                <h2 class="mb-0">@ViewBag.TotalCourses</h2>
+                            </div>
+                            <div class="bg-primary text-white rounded p-3">
+                                <i class="fa fa-book fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toplam Kategoriler -->
+            <div class="col-md-4 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Kategoriler</h6>
+                                <h2 class="mb-0">@ViewBag.TotalCategories</h2>
+                            </div>
+                            <div class="bg-success text-white rounded p-3">
+                                <i class="fa fa-list fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toplam Kayıtlar -->
+            <div class="col-md-4 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Kayıtlar</h6>
+                                <h2 class="mb-0">@ViewBag.TotalEnrollments</h2>
+                            </div>
+                            <div class="bg-warning text-white rounded p-3">
+                                <i class="fa fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toplam Dersler -->
+            <div class="col-md-4 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Dersler</h6>
+                                <h2 class="mb-0">@ViewBag.TotalLessons</h2>
+                            </div>
+                            <div class="bg-info text-white rounded p-3">
+                                <i class="fa fa-video-camera fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toplam Öğrenciler -->
+            <div class="col-md-4 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Öğrenciler</h6>
+                                <h2 class="mb-0">@ViewBag.TotalStudents</h2>
+                            </div>
+                            <div class="bg-danger text-white rounded p-3">
+                                <i class="fa fa-graduation-cap fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toplam Eğitmenler -->
+            <div class="col-md-4 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Eğitmenler</h6>
+                                <h2 class="mb-0">@ViewBag.TotalInstructors</h2>
+                            </div>
+                            <div class="bg-secondary text-white rounded p-3">
+                                <i class="fa fa-user-circle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son Kayıtlar -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Son Kurs Kayıtları</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Öğrenci</th>
+                                        <th>Kurs</th>
+                                        <th>Tarih</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var enrollment in ViewBag.RecentEnrollments)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <i class="fa fa-user text-primary"></i>
+                                                @enrollment.StudentName
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-book text-success"></i>
+                                                @enrollment.CourseTitle
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-calendar text-info"></i>
+                                                @enrollment.EnrolledDate.ToString("dd.MM.yyyy HH:mm")
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hızlı İşlemler -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Hızlı İşlemler</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <a href="/Admin/Course/CreateCourse" class="btn btn-primary btn-block w-100">
+                                    <i class="fa fa-plus"></i> Yeni Kurs
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="/Admin/Category/CreateCategory" class="btn btn-success btn-block w-100">
+                                    <i class="fa fa-plus"></i> Yeni Kategori
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="/Admin/Lesson/CreateLesson" class="btn btn-info btn-block w-100">
+                                    <i class="fa fa-plus"></i> Yeni Ders
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <a href="/Admin/Instructor/CreateInstructor" class="btn btn-warning btn-block w-100">
+                                    <i class="fa fa-plus"></i> Yeni Eğitmen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

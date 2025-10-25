@@ -1,27 +1,68 @@
-﻿<nav id="sidebar">
+﻿@using Microsoft.AspNetCore.Identity
+@using Learnify.Entity.Concrete
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    var user = SignInManager.IsSignedIn(User) ? await UserManager.GetUserAsync(User) : null;
+}
+
+<nav id="sidebar">
     <div class="sidebar_blog_1">
         <div class="sidebar-header">
             <div class="logo_section">
-                <a href="/Admin/Dashboard/Index"><img class="logo_icon img-responsive" src="~/pluto-1.0.0/images/logo/logo_icon.png" alt="#" /></a>
+                <a href="/Admin/Dashboard/Index">
+                    <img class="logo_icon img-responsive" src="~/pluto-1.0.0/images/logo/logo_icon.png" alt="#" />
+                </a>
             </div>
         </div>
         <div class="sidebar_user_info">
             <div class="user_profle_side">
-                <div class="user_img"><img class="img-responsive" src="~/pluto-1.0.0/images/layout_img/user_img.jpg" alt="#" /></div>
+                <div class="user_img">
+                    <img class="img-responsive"
+                         src="@(string.IsNullOrEmpty(user?.ProfileImage) ? "/pluto-1.0.0/images/layout_img/user_img.jpg" : user.ProfileImage)"
+                         alt="#" />
+                </div>
                 <div class="user_info">
-                    <h6>John David</h6>
+                    <h6>@(user?.FullName ?? user?.UserName ?? "Kullanıcı")</h6>
                     <p><span class="online_animation"></span> Online</p>
                 </div>
             </div>
         </div>
     </div>
     <div class="sidebar_blog_2">
-        <h4>General</h4>
+        <h4>Genel</h4>
         <ul class="list-unstyled components">
-            <li><a href="/Course/Index"><i class="fa fa-book"></i> <span>Kurslar</span></a></li>
-            <li><a href="/Category/Index"><i class="fa fa-list"></i> <span>Kategoriler</span></a></li>
-            <li><a href="/Lesson/Index"><i class="fa fa-video-camera"></i> <span>Dersler</span></a></li>
-            <li><a href="/Enrollment/Index"><i class="fa fa-users"></i> <span>Kayıtlar</span></a></li>
+            <li>
+                <a href="/Admin/Dashboard/Index">
+                    <i class="fa fa-dashboard yellow_color"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="/Admin/Course/Index">
+                    <i class="fa fa-book orange_color"></i> <span>Kurslar</span>
+                </a>
+            </li>
+            <li>
+                <a href="/Admin/Category/Index">
+                    <i class="fa fa-list green_color"></i> <span>Kategoriler</span>
+                </a>
+            </li>
+            <li>
+                <a href="/Admin/Lesson/Index">
+                    <i class="fa fa-video-camera blue2_color"></i> <span>Dersler</span>
+                </a>
+            </li>
+            <li>
+                <a href="/Admin/Enrollment/Index">
+                    <i class="fa fa-users purple_color"></i> <span>Kayıtlar</span>
+                </a>
+            </li>
+            <li>
+                <a href="/Admin/Instructor/Index">
+                    <i class="fa fa-user-circle red_color"></i> <span>Eğitmenler</span>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

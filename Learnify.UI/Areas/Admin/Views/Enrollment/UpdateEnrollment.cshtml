@@ -1,0 +1,70 @@
+﻿@using Learnify.DTO.DTOs.EnrollmentDto
+@model UpdateEnrollmentDto
+@{
+    ViewData["Title"] = "Kayıt Güncelle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="right_content">
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="white_shd full p-4 shadow-sm rounded-3">
+                    <div class="heading1 mb-4">
+                        <h2 class="fw-bold">Kurs Kaydı Güncelle</h2>
+                    </div>
+
+                    <form asp-action="UpdateEnrollment" method="post">
+                        <input type="hidden" asp-for="EnrollmentID" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fa fa-user"></i> Öğrenci Seçin
+                            </label>
+                            <select asp-for="StudentID" class="form-control">
+                                <option value="">Öğrenci Seçiniz</option>
+                                @foreach (var student in ViewBag.Students)
+                                {
+                                    <option value="@student.Id">@student.FullName</option>
+                                }
+                            </select>
+                            <span asp-validation-for="StudentID" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fa fa-book"></i> Kurs Seçin
+                            </label>
+                            <select asp-for="CourseID" class="form-control">
+                                <option value="">Kurs Seçiniz</option>
+                                @foreach (var course in ViewBag.Courses)
+                                {
+                                    <option value="@course.CourseID">@course.Title</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CourseID" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="fa fa-exclamation-triangle"></i>
+                            <strong>Uyarı:</strong> Öğrenci veya kurs değişikliği dikkatli yapılmalıdır.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save"></i> Güncelle
+                            </button>
+                            <a href="/Admin/Enrollment/Index" class="btn btn-secondary">
+                                <i class="fa fa-times"></i> İptal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

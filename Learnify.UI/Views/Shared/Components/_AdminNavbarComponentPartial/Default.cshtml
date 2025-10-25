@@ -1,9 +1,16 @@
-﻿<div class="topbar">
+﻿@using Microsoft.AspNetCore.Identity
+@using Learnify.Entity.Concrete
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<div class="topbar">
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="full">
             <button type="button" id="sidebarCollapse" class="sidebar_toggle"><i class="fa fa-bars"></i></button>
             <div class="logo_section">
-                <a href="/Admin/Dashboard/Index"><img class="img-responsive" src="~/AdminTemplate/images/logo/logo.png" alt="#" /></a>
+                <a href="/Admin/Dashboard/Index">
+                    <img class="img-responsive" src="~/pluto-1.0.0/images/logo/logo.png" alt="#" />
+                </a>
             </div>
             <div class="right_topbar">
                 <div class="icon_info">
@@ -13,15 +20,36 @@
                     </ul>
                     <ul class="user_profile_dd">
                         <li>
-                            <a class="dropdown-toggle" data-toggle="dropdown">
-                                <img class="img-responsive rounded-circle" src="~/AdminTemplate/images/layout_img/user_img.jpg" alt="#" />
-                                <span class="name_user">John David</span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="#">Profil</a>
-                                <a class="dropdown-item" href="#">Ayarlar</a>
-                                <a class="dropdown-item" href="/Login/Logout"><span>Çıkış Yap</span> <i class="fa fa-sign-out"></i></a>
-                            </div>
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var user = await UserManager.GetUserAsync(User);
+                                <a class="dropdown-toggle" data-toggle="dropdown">
+                                    <img class="img-responsive rounded-circle"
+                                         src="@(string.IsNullOrEmpty(user?.ProfileImage) ? "/pluto-1.0.0/images/layout_img/user_img.jpg" : user.ProfileImage)"
+                                         alt="#" />
+                                    <span class="name_user">@(user?.FullName ?? user?.UserName ?? "Kullanıcı")</span>
+                                </a>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="/Account/Profile">
+                                        <i class="fa fa-user"></i> Profilim
+                                    </a>
+                                    <a class="dropdown-item" href="/Admin/Dashboard/Index">
+                                        <i class="fa fa-cog"></i> Ayarlar
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <form asp-area="Admin" asp-controller="Login" asp-action="Logout" method="post" style="display:inline;">
+                                        <button type="submit" class="dropdown-item" style="border:none; background:none; cursor:pointer; width:100%; text-align:left; padding: 8px 20px;">
+                                            <span>Çıkış Yap</span> <i class="fa fa-sign-out"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <a href="/Admin/Login">
+                                    <span class="name_user">Giriş Yap</span>
+                                </a>
+                            }
                         </li>
                     </ul>
                 </div>

@@ -3,6 +3,8 @@
 @{
     ViewData["Title"] = "Kategori Listesi";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+
 }
 
 <div class="right_content">
@@ -24,7 +26,9 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
+                                count++;
                                 <tr>
+                                    <td>@count</td>
                                     <td>@item.CategoryName</td>
                                     <td class="text-center">
                                         <a href="/Admin/Category/UpdateCategory/@item.CategoryID" class="btn btn-sm btn-primary">Güncelle</a>

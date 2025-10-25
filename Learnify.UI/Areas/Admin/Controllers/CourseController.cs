@@ -1,11 +1,13 @@
 ﻿using Learnify.Business.Abstract;
 using Learnify.DTO.DTOs.CourseDto;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class CourseController : Controller
     {
 

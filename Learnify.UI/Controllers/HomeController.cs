@@ -15,6 +15,20 @@ namespace Learnify.UI.Controllers
 
         public IActionResult Index()
         {
+            // Eðer kullanýcý giriþ yapmýþsa ve Admin ise, dashboard'a yönlendir
+            if (User.Identity!.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+                }
+                else if (User.IsInRole("Instructor"))
+                {
+                    return RedirectToAction("Index", "Dashboard", new { area = "Instructor" });
+                }
+            }
+
+            // Deðilse normal home sayfasý
             return View();
         }
 

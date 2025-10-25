@@ -11,6 +11,11 @@ namespace Learnify.Entity.Concrete
     {
         public string? FullName { get; set; }
         public string? ProfileImage { get; set; }
+
+        // ✅ Instructor için eklenen özellik
+        public string? Profession { get; set; }
+
+        // Navigation Properties
         public ICollection<Course>? Courses { get; set; }
         public ICollection<Enrollment>? Enrollments { get; set; }
     }

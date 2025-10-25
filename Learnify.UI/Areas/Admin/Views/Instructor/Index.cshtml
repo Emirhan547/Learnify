@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Eğitmen Listesi";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
 }
 
 <div class="right_content">
@@ -27,7 +28,9 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
+                                count++;
                                 <tr>
+                                    <td>@count</td>
                                     <td>@item.UserName</td>
                                     <td>@item.FullName</td>
                                     <td>@item.Email</td>

@@ -1,12 +1,10 @@
-﻿using Learnify.Entity.Concrete;
+﻿using Learnify.DataAccess.Configurations;
+using Learnify.DataAccess.Extensions;
+using Learnify.Entity.Abstract;
+using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Context
 {
@@ -23,17 +21,30 @@ namespace Learnify.DataAccess.Context
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<Enrollment>()
-                .HasOne(e => e.Student)
-                .WithMany(u => u.Enrollments)
-                .HasForeignKey(e => e.StudentID)
-                .OnDelete(DeleteBehavior.Restrict);
+            // 🔹 Tüm configuration sınıflarını otomatik uygula
+            builder.ApplyConfigurationsFromAssembly(typeof(LearnifyContext).Assembly);
 
-            builder.Entity<Course>()
-                .HasOne(c => c.Instructor)
-                .WithMany(u => u.Courses)
-                .HasForeignKey(c => c.InstructorID)
-                .OnDelete(DeleteBehavior.Restrict);
+            // 🔹 BaseEntity alanlarını otomatik uygula (CreatedDate, IsActive)
+            builder.ApplyBaseEntityConfigurations();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker
+                .Entries()
+                .Where(e => e.Entity is BaseEntity &&
+                           (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entry in entries)
+            {
+                var entity = (BaseEntity)entry.Entity;
+                entity.UpdatedDate = DateTime.UtcNow;
+
+                if (entry.State == EntityState.Added)
+                    entity.CreatedDate = DateTime.UtcNow;
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

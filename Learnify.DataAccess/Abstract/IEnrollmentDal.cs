@@ -9,5 +9,7 @@ namespace Learnify.DataAccess.Abstract
 {
     public interface IEnrollmentDal:IGenericDal<Enrollment>
     {
+        Task<List<Enrollment>> GetEnrollmentsByStudentIdAsync(int studentId);
+        Task<int> GetEnrollmentCountByCourseIdAsync(int courseId);
     }
 }

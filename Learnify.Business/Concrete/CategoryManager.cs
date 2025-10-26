@@ -3,10 +3,7 @@ using Learnify.Business.Abstract;
 using Learnify.DataAccess.Abstract;
 using Learnify.DTO.DTOs.CategoryDto;
 using Learnify.Entity.Concrete;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Learnify.Business.Concrete
@@ -14,41 +11,52 @@ namespace Learnify.Business.Concrete
     public class CategoryManager : ICategoryService
     {
         private readonly ICategoryDal _categoryDal;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public CategoryManager(ICategoryDal categoryDal, IMapper mapper)
+        public CategoryManager(ICategoryDal categoryDal, IUnitOfWork uow, IMapper mapper)
         {
             _categoryDal = categoryDal;
+            _uow = uow;
             _mapper = mapper;
         }
 
         public async Task<List<ResultCategoryDto>> GetAllAsync()
         {
-            var values = await _categoryDal.GetAllAsync();
-            return _mapper.Map<List<ResultCategoryDto>>(values);
+            var entities = await _categoryDal.GetAllAsync();
+            return _mapper.Map<List<ResultCategoryDto>>(entities);
         }
 
-        public async Task<ResultCategoryDto> GetByIdAsync(int id)
+        public async Task<ResultCategoryDto?> GetByIdAsync(int id)
         {
-            var value = await _categoryDal.GetByIdAsync(id);
-            return _mapper.Map<ResultCategoryDto>(value);
+            var entity = await _categoryDal.GetByIdAsync(id);
+            return entity == null ? null : _mapper.Map<ResultCategoryDto>(entity);
         }
 
-        public async Task AddAsync(CreateCategoryDto dto)
+        public async Task<bool> AddAsync(CreateCategoryDto dto)
         {
             var entity = _mapper.Map<Category>(dto);
             await _categoryDal.AddAsync(entity);
+            return await _uow.CommitAsync() > 0;
         }
 
-        public async Task UpdateAsync(UpdateCategoryDto dto)
+        public async Task<bool> UpdateAsync(UpdateCategoryDto dto)
         {
-            var entity = _mapper.Map<Category>(dto);
-            await _categoryDal.UpdateAsync(entity);
+            var entity = await _categoryDal.GetByIdAsync(dto.Id);
+            if (entity == null) return false;
+
+            _mapper.Map(dto, entity);
+            _categoryDal.Update(entity);
+            return await _uow.CommitAsync() > 0;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            await _categoryDal.DeleteAsync(id);
+            var entity = await _categoryDal.GetByIdAsync(id);
+            if (entity == null) return false;
+
+            _categoryDal.Delete(entity);
+            return await _uow.CommitAsync() > 0;
         }
     }
 }

@@ -2,10 +2,8 @@
 using Learnify.DataAccess.Context;
 using Learnify.Entity.Concrete;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Repositories
@@ -14,6 +12,21 @@ namespace Learnify.DataAccess.Repositories
     {
         public EfCategoryDal(LearnifyContext context) : base(context)
         {
+        }
+
+        public async Task<List<Category>> GetActiveCategoriesAsync()
+        {
+            return await _context.Categories
+                .Where(x => x.IsActive)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<Category?> GetCategoryWithCoursesAsync(int categoryId)
+        {
+            return await _context.Categories
+                .Include(c => c.Courses)
+                .FirstOrDefaultAsync(c => c.Id == categoryId);
         }
     }
 }

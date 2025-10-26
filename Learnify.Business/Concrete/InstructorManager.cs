@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Learnify.Business.Abstract;
-using Learnify.DataAccess.Abstract;
 using Learnify.DTO.DTOs.InstructorDto;
 using Learnify.Entity.Concrete;
+using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,45 +10,74 @@ namespace Learnify.Business.Concrete
 {
     public class InstructorManager : IInstructorService
     {
-        private readonly IInstructorDal _instructorDal;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
         private readonly IMapper _mapper;
 
-        public InstructorManager(IInstructorDal instructorDal, IMapper mapper)
+        public InstructorManager(
+            UserManager<AppUser> userManager,
+            RoleManager<IdentityRole<int>> roleManager,
+            IMapper mapper)
         {
-            _instructorDal = instructorDal;
+            _userManager = userManager;
+            _roleManager = roleManager;
             _mapper = mapper;
-        }
-
-        public async Task AddAsync(CreateInstructorDto dto)
-        {
-            // ✅ AppUser olarak map ediliyor
-            var entity = _mapper.Map<AppUser>(dto);
-            await _instructorDal.AddAsync(entity);
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            await _instructorDal.DeleteAsync(id);
         }
 
         public async Task<List<ResultInstructorDto>> GetAllAsync()
         {
-            // ✅ Include kullanılmıyor çünkü AppUser direkt kullanılıyor
-            var values = await _instructorDal.GetAllAsync();
-            return _mapper.Map<List<ResultInstructorDto>>(values);
+            var users = await Task.FromResult(_userManager.Users.ToList());
+            var instructors = users.Where(u => _userManager.IsInRoleAsync(u, "Instructor").Result).ToList();
+
+            return _mapper.Map<List<ResultInstructorDto>>(instructors);
         }
 
-        public async Task<ResultInstructorDto> GetByIdAsync(int id)
+        public async Task<ResultInstructorDto?> GetByIdAsync(int id)
         {
-            // ✅ Include kullanılmıyor
-            var value = await _instructorDal.GetByIdAsync(id);
-            return _mapper.Map<ResultInstructorDto>(value);
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null) return null;
+
+            var isInstructor = await _userManager.IsInRoleAsync(user, "Instructor");
+            if (!isInstructor) return null;
+
+            return _mapper.Map<ResultInstructorDto>(user);
         }
 
-        public async Task UpdateAsync(UpdateInstructorDto dto)
+        public async Task<bool> AddAsync(CreateInstructorDto dto)
         {
-            var entity = _mapper.Map<AppUser>(dto);
-            await _instructorDal.UpdateAsync(entity);
+            var user = _mapper.Map<AppUser>(dto);
+            user.EmailConfirmed = true; // varsayılan olarak onaylı kabul edilebilir
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded)
+                return false;
+
+            // "Instructor" rolü yoksa oluştur
+            if (!await _roleManager.RoleExistsAsync("Instructor"))
+                await _roleManager.CreateAsync(new IdentityRole<int>("Instructor"));
+
+            await _userManager.AddToRoleAsync(user, "Instructor");
+            return true;
+        }
+
+        public async Task<bool> UpdateAsync(UpdateInstructorDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.Id.ToString());
+            if (user == null) return false;
+
+            _mapper.Map(dto, user);
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null) return false;
+
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
         }
     }
 }

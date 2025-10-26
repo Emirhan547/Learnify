@@ -51,12 +51,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
         {
             var value = await _lessonService.GetByIdAsync(id);
             var courses = await _courseService.GetAllAsync();
-            ViewBag.Courses = courses.Select(x => new { x.CourseID, x.Title }).ToList();
+            ViewBag.Courses = courses.Select(x => new { x.CourseId, x.Title }).ToList();
 
             // ✅ ResultLessonDto artık CourseID içeriyor
             var updateDto = new UpdateLessonDto
             {
-                LessonID = value.LessonID,
+                LessonId = value.LessonID,
                 Title = value.Title,
                 VideoUrl = value.VideoUrl,
                 CourseID = value.CourseID

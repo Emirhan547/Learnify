@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Learnify.Entity.Abstract;
+using System;
 
 namespace Learnify.Entity.Concrete
 {
-    public class Enrollment
+    public class Enrollment : BaseEntity
     {
-        public int EnrollmentID { get; set; }
-        public int StudentID { get; set; }
-        public AppUser? Student { get; set; }
+        public int StudentId { get; set; }
+        public AppUser Student { get; set; } = null!;
 
-        public int CourseID { get; set; }
-        public Course? Course { get; set; }
+        public int CourseId { get; set; }
+        public Course Course { get; set; } = null!;
 
-        public DateTime EnrolledDate { get; set; } = DateTime.Now;
+        public DateTime EnrolledDate { get; set; } = DateTime.UtcNow;
     }
 }

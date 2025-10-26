@@ -11,9 +11,8 @@ namespace Learnify.DTO.DTOs.CourseDto
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public int CategoryID { get; set; }
 
-        // 🔸 InstructorID opsiyonel hale getirildi
-        public int? InstructorID { get; set; }
+        public int CategoryId { get; set; }     // ✅ tutarlı isim
+        public int? InstructorId { get; set; }  // ✅ opsiyonel
     }
 }

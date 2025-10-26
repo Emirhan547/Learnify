@@ -1,8 +1,9 @@
-﻿using Learnify.Business.MappingProfiles;
+﻿using Learnify.Business.DependencyResolvers;
+using Learnify.Business.MappingProfiles;
 using Learnify.DataAccess.Context;
 using Learnify.Entity.Concrete;
 using Learnify.UI.Extensions;
-using Learnify.UI.Seeds;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Service Extensions
 builder.Services.AddServiceExtensions();
+
+builder.Services.AddValidationRules();
+
+builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
+    .AddEntityFrameworkStores<LearnifyContext>()
+    .AddDefaultTokenProviders();
 
 // ✅ Controllers with Views
 builder.Services.AddControllersWithViews();
@@ -65,8 +72,8 @@ using (var scope = app.Services.CreateScope())
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
         var userManager = services.GetRequiredService<UserManager<AppUser>>();
-        await RoleSeeder.SeedRolesAsync(roleManager, userManager);
     }
+
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();

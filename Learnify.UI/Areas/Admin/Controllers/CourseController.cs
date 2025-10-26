@@ -2,7 +2,7 @@
 using Learnify.DTO.DTOs.CourseDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Learnify.UI.Areas.Admin.Controllers
 {
@@ -10,7 +10,6 @@ namespace Learnify.UI.Areas.Admin.Controllers
     [Authorize(Roles = "Admin")]
     public class CourseController : Controller
     {
-
         private readonly ICourseService _courseService;
         private readonly ICategoryService _categoryService;
 
@@ -20,62 +19,112 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _categoryService = categoryService;
         }
 
-        public async Task<IActionResult> Index()
+        // 📌 Yardımcı metot — Tekrarlayan kategori yüklemelerini ortadan kaldırır.
+        private async Task LoadCategoriesAsync()
         {
-            var values = await _courseService.GetAllAsync();
-            return View(values);
+            var categories = await _categoryService.GetAllAsync();
+            ViewBag.Categories = categories
+                .Select(x => new SelectListItem
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString()
+                })
+                .ToList();
         }
 
+        // 📋 Tüm kursları listele
+        public async Task<IActionResult> Index()
+        {
+            var courses = await _courseService.GetAllAsync();
+            return View(courses);
+        }
+
+        // ➕ Yeni kurs sayfası
         [HttpGet]
         public async Task<IActionResult> CreateCourse()
         {
-            var categories = await _categoryService.GetAllAsync();
-            ViewBag.Categories = categories.Select(x => new { x.CategoryID, x.CategoryName }).ToList();
+            await LoadCategoriesAsync();
             return View();
         }
 
+        // ✅ Yeni kurs oluştur
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCourse(CreateCourseDto dto)
         {
             if (!ModelState.IsValid)
             {
-                var categories = await _categoryService.GetAllAsync();
-                ViewBag.Categories = categories.Select(x => new { x.CategoryID, x.CategoryName }).ToList();
+                await LoadCategoriesAsync();
                 return View(dto);
             }
 
-            await _courseService.AddAsync(dto);
-            return RedirectToAction("Index");
+            try
+            {
+                await _courseService.AddAsync(dto);
+                TempData["Success"] = "Kurs başarıyla eklendi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                await LoadCategoriesAsync();
+                return View(dto);
+            }
         }
 
+        // ✏️ Kurs güncelleme sayfası
         [HttpGet]
         public async Task<IActionResult> UpdateCourse(int id)
         {
-            var value = await _courseService.GetByIdAsync(id);
-            var categories = await _categoryService.GetAllAsync();
-            ViewBag.Categories = categories.Select(x => new { x.CategoryID, x.CategoryName }).ToList();
-            return View(value);
+            var course = await _courseService.GetByIdAsync(id);
+            if (course == null)
+                return NotFound();
+
+            await LoadCategoriesAsync();
+            return View(course);
         }
 
+        // ✅ Kurs güncelle
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateCourse(UpdateCourseDto dto)
         {
             if (!ModelState.IsValid)
             {
-                var categories = await _categoryService.GetAllAsync();
-                ViewBag.Categories = categories.Select(x => new { x.CategoryID, x.CategoryName }).ToList();
+                await LoadCategoriesAsync();
                 return View(dto);
             }
 
-            await _courseService.UpdateAsync(dto);
-            return RedirectToAction("Index");
+            try
+            {
+                await _courseService.UpdateAsync(dto);
+                TempData["Success"] = "Kurs başarıyla güncellendi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                await LoadCategoriesAsync();
+                return View(dto);
+            }
         }
 
+        // ❌ Kurs sil
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCourse(int id)
         {
-            await _courseService.DeleteAsync(id);
-            return RedirectToAction("Index");
-        }
+            try
+            {
+                await _courseService.DeleteAsync(id);
+                TempData["Success"] = "Kurs silindi.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
 
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

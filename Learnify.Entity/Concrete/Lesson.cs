@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Learnify.Entity.Abstract;
 
 namespace Learnify.Entity.Concrete
 {
-    public class Lesson
+    public class Lesson : BaseEntity
     {
-        public int LessonID { get; set; }
         public string Title { get; set; } = string.Empty;
         public string VideoUrl { get; set; } = string.Empty;
-        public int CourseID { get; set; }
-        public Course? Course { get; set; }
+        public int Order { get; set; }
+
+        public int CourseId { get; set; }
+        public Course Course { get; set; } = null!;
     }
 }

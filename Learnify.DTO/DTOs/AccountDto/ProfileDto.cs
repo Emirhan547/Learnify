@@ -11,14 +11,13 @@ namespace Learnify.DTO.DTOs.AccountDto
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Kullanıcı adı zorunludur")]
+
         public string UserName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Ad Soyad zorunludur")]
+
         public string FullName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email adresi zorunludur")]
-        [EmailAddress(ErrorMessage = "Geçerli bir email adresi giriniz")]
+
         public string Email { get; set; } = string.Empty;
 
         public string? PhoneNumber { get; set; }

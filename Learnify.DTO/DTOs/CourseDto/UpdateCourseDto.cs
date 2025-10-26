@@ -8,10 +8,12 @@ namespace Learnify.DTO.DTOs.CourseDto
 {
     public class UpdateCourseDto
     {
-        public int CourseID { get; set; }
+        public int Id { get; set; }                 // ✅ CourseID yerine Id
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public int CategoryID { get; set; }
+
+        public int CategoryId { get; set; }
+        public int? InstructorId { get; set; }
     }
 }

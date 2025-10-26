@@ -1,23 +1,20 @@
-﻿using System;
+﻿using Learnify.Entity.Abstract;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Learnify.Entity.Concrete
 {
-    public class Course
+    public class Course : BaseEntity
     {
-        public int CourseID { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
+        public bool IsPublished { get; set; } = false;
 
-        public int CategoryID { get; set; }
-        public Category? Category { get; set; }
+        // Relations
+        public int CategoryId { get; set; }
+        public Category Category { get; set; } = null!;
 
-        // 🔸 Instructor ilişkisini opsiyonel hale getirdik
-        public int? InstructorID { get; set; }
+        public int? InstructorId { get; set; }
         public AppUser? Instructor { get; set; }
 
         public ICollection<Lesson>? Lessons { get; set; }

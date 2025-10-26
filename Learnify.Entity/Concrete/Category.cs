@@ -1,18 +1,14 @@
-﻿using System;
+﻿using Learnify.Entity.Abstract;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Learnify.Entity.Concrete
 {
-    public class Category
+    public class Category : BaseEntity
     {
-        public int CategoryID { get; set; }
-
-        // ✅ Veritabanındaki kolon adıyla eşleştirildi
         public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
-        public ICollection<Course>? Courses { get; set; }
+        // Navigation
+        public ICollection<Course> Courses { get; set; } = new List<Course>();
     }
 }

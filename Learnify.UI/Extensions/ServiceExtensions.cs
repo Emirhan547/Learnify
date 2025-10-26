@@ -27,7 +27,7 @@ namespace Learnify.UI.Extensions
             services.AddScoped<ILessonService, LessonManager>();
 
             // ✅ Instructor (EKLENDİ)
-            services.AddScoped<IInstructorDal, EfInstructorDal>();
+           
             services.AddScoped<IInstructorService, InstructorManager>();
         }
     }

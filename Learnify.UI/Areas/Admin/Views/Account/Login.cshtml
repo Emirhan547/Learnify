@@ -1,0 +1,98 @@
+﻿@model Learnify.DTO.DTOs.AccountDto.LoginDto
+@{
+    Layout = null; // giriş sayfası layout kullanmaz
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Learnify Admin Giriş</title>
+
+    <!-- site icon -->
+    <link rel="icon" href="~/pluto-1.0.0/images/fevicon.png" type="image/png" />
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/css/bootstrap.min.css" />
+    <!-- site css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/style.css" />
+    <!-- responsive css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/css/responsive.css" />
+    <!-- color css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/css/colors.css" />
+    <!-- select bootstrap -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/css/bootstrap-select.css" />
+    <!-- scrollbar css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/css/perfect-scrollbar.css" />
+    <!-- custom css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/css/custom.css" />
+    <!-- calendar file css -->
+    <link rel="stylesheet" href="~/pluto-1.0.0/js/semantic.min.css" />
+</head>
+
+<body class="inner_page login">
+    <div class="full_container">
+        <div class="container">
+            <div class="center verticle_center full_height">
+                <div class="login_section">
+                    <div class="logo_login">
+                        <div class="center">
+                            <img width="210" src="~/pluto-1.0.0/images/logo/logo.png" alt="Learnify Logo" />
+                        </div>
+                    </div>
+
+                    <div class="login_form">
+                        <form asp-action="Login" method="post">
+                            <fieldset>
+                                <div asp-validation-summary="All" class="text-danger text-center mb-3"></div>
+
+                                <div class="field">
+                                    <label class="label_field">Kullanıcı Adı</label>
+                                    <input asp-for="UserName" class="form-control" placeholder="Kullanıcı Adı" />
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
+                                </div>
+
+                                <div class="field">
+                                    <label class="label_field">Şifre</label>
+                                    <input asp-for="Password" class="form-control" type="password" placeholder="Şifre" />
+                                    <span asp-validation-for="Password" class="text-danger"></span>
+                                </div>
+
+                                <div class="field d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <input asp-for="RememberMe" class="form-check-input me-1" />
+                                        <label class="form-check-label">Beni Hatırla</label>
+                                    </div>
+                                    <a class="forgot" href="#">Şifremi Unuttum</a>
+                                </div>
+
+                                <div class="field margin_0">
+                                    <button type="submit" class="main_bt w-100">Giriş Yap</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="~/pluto-1.0.0/js/jquery.min.js"></script>
+    <script src="~/pluto-1.0.0/js/popper.min.js"></script>
+    <script src="~/pluto-1.0.0/js/bootstrap.min.js"></script>
+    <!-- wow animation -->
+    <script src="~/pluto-1.0.0/js/animate.js"></script>
+    <!-- select country -->
+    <script src="~/pluto-1.0.0/js/bootstrap-select.js"></script>
+    <!-- nice scrollbar -->
+    <script src="~/pluto-1.0.0/js/perfect-scrollbar.min.js"></script>
+    <script>
+        var ps = new PerfectScrollbar('#sidebar');
+    </script>
+    <!-- custom js -->
+    <script src="~/pluto-1.0.0/js/custom.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

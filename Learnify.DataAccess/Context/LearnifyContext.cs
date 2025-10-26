@@ -19,6 +19,8 @@ namespace Learnify.DataAccess.Context
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
+
             base.OnModelCreating(builder);
 
             // 🔹 Tüm configuration sınıflarını otomatik uygula

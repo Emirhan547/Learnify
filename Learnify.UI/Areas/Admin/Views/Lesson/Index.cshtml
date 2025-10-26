@@ -31,19 +31,21 @@
                                     <td>@item.CourseTitle</td>
                                     <td>
                                         <a href="@item.VideoUrl" target="_blank" class="text-primary">
-                                            <i class="fa fa-video-camera"></i> Video İzle
+                                            <i class="fa fa-video-camera"></i> İzle
                                         </a>
                                     </td>
                                     <td class="text-center">
-                                        <a href="/Admin/Lesson/UpdateLesson/@item.LessonID" class="btn btn-sm btn-primary">Güncelle</a>
-                                        <a href="/Admin/Lesson/DeleteLesson/@item.LessonID" class="btn btn-sm btn-danger">Sil</a>
+                                        <a href="/Admin/Lesson/UpdateLesson/@item.Id" class="btn btn-sm btn-primary">Güncelle</a>
+                                        <a href="/Admin/Lesson/DeleteLesson/@item.Id" class="btn btn-sm btn-danger">Sil</a>
                                     </td>
                                 </tr>
                             }
                         </tbody>
                     </table>
 
-                    <a href="/Admin/Lesson/CreateLesson" class="btn btn-success mt-3">+ Yeni Ders Ekle</a>
+                    <a href="/Admin/Lesson/CreateLesson" class="btn btn-success mt-3">
+                        + Yeni Ders Ekle
+                    </a>
                 </div>
             </div>
         </div>

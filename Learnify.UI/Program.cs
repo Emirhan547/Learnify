@@ -1,6 +1,8 @@
 ﻿using Learnify.Business.DependencyResolvers;
 using Learnify.Business.MappingProfiles;
+using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
+using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
 using Learnify.UI.Extensions;
 
@@ -11,8 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ✅ Service Extensions
 builder.Services.AddServiceExtensions();
+builder.Services.AddBusinessServices();
 
 builder.Services.AddValidationRules();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
     .AddEntityFrameworkStores<LearnifyContext>()
@@ -25,12 +29,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<LearnifyContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ✅ Identity Configuration
-builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
-{
-})
-.AddEntityFrameworkStores<LearnifyContext>()
-.AddDefaultTokenProviders();
+
 
 // ✅ Cookie Configuration
 builder.Services.ConfigureApplicationCookie(options =>

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Learnify.Business.ValidationRules.AccountValidators
 {
-    public class RegisterValidator : AbstractValidator<RegisterDto>
+    public class RegisterValidator : AbstractValidator<AdminRegisterDto>
     {
         public RegisterValidator()
         {

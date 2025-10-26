@@ -15,34 +15,34 @@
                     </div>
 
                     <form asp-action="UpdateEnrollment" method="post">
-                        <input type="hidden" asp-for="EnrollmentID" />
+                        <input type="hidden" asp-for="Id" />
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">
                                 <i class="fa fa-user"></i> Öğrenci Seçin
                             </label>
-                            <select asp-for="StudentID" class="form-control">
+                            <select asp-for="StudentId" class="form-control">
                                 <option value="">Öğrenci Seçiniz</option>
                                 @foreach (var student in ViewBag.Students)
                                 {
-                                    <option value="@student.Id">@student.FullName</option>
+                                    <option value="@student.Value">@student.Text</option>
                                 }
                             </select>
-                            <span asp-validation-for="StudentID" class="text-danger"></span>
+                            <span asp-validation-for="StudentId" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">
                                 <i class="fa fa-book"></i> Kurs Seçin
                             </label>
-                            <select asp-for="CourseID" class="form-control">
+                            <select asp-for="CourseId" class="form-control">
                                 <option value="">Kurs Seçiniz</option>
                                 @foreach (var course in ViewBag.Courses)
                                 {
-                                    <option value="@course.CourseID">@course.Title</option>
+                                    <option value="@course.Value">@course.Text</option>
                                 }
                             </select>
-                            <span asp-validation-for="CourseID" class="text-danger"></span>
+                            <span asp-validation-for="CourseId" class="text-danger"></span>
                         </div>
 
                         <div class="alert alert-warning">
@@ -65,6 +65,4 @@
     </div>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+

@@ -16,7 +16,7 @@ namespace Learnify.Business.ValidationRules.AccountValidators
             RuleFor(x => x.Email).NotEmpty().EmailAddress().WithMessage("Geçerli bir email giriniz.");
             RuleFor(x => x.Password).NotEmpty().MinimumLength(6);
             RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage("Şifreler eşleşmiyor.");
-            RuleFor(x => x.Role).NotEmpty().WithMessage("Rol seçimi zorunludur.");
+
         }
     }
 }

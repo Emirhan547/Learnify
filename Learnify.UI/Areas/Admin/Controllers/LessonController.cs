@@ -2,6 +2,7 @@
 using Learnify.DTO.DTOs.LessonDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Learnify.UI.Areas.Admin.Controllers
 {
@@ -18,71 +19,91 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _courseService = courseService;
         }
 
-        public async Task<IActionResult> Index()
+        // 🔹 Kurs dropdown verilerini yükleme (tekrarı engeller)
+        private async Task LoadCoursesAsync()
         {
-            var values = await _lessonService.GetAllAsync();
-            return View(values);
+            var courses = await _courseService.GetAllAsync();
+            ViewBag.Courses = courses
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Title,
+                    Value = c.Id.ToString()
+                })
+                .ToList();
         }
 
+        // 📋 Listeleme
+        public async Task<IActionResult> Index()
+        {
+            var lessons = await _lessonService.GetAllAsync();
+            return View(lessons);
+        }
+
+        // ➕ Yeni ders formu
         [HttpGet]
         public async Task<IActionResult> CreateLesson()
         {
-            var courses = await _courseService.GetAllAsync();
-            ViewBag.Courses = courses.Select(x => new { x.CourseID, x.Title }).ToList();
+            await LoadCoursesAsync();
             return View();
         }
 
+        // ✅ Yeni ders oluştur
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateLesson(CreateLessonDto dto)
         {
             if (!ModelState.IsValid)
             {
-                var courses = await _courseService.GetAllAsync();
-                ViewBag.Courses = courses.Select(x => new { x.CourseID, x.Title }).ToList();
+                await LoadCoursesAsync();
                 return View(dto);
             }
 
             await _lessonService.AddAsync(dto);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
+        // ✏️ Güncelleme formu
         [HttpGet]
         public async Task<IActionResult> UpdateLesson(int id)
         {
-            var value = await _lessonService.GetByIdAsync(id);
-            var courses = await _courseService.GetAllAsync();
-            ViewBag.Courses = courses.Select(x => new { x.CourseId, x.Title }).ToList();
+            var lesson = await _lessonService.GetByIdAsync(id);
+            if (lesson == null)
+                return NotFound();
 
-            // ✅ ResultLessonDto artık CourseID içeriyor
-            var updateDto = new UpdateLessonDto
+            await LoadCoursesAsync();
+
+            var dto = new UpdateLessonDto
             {
-                LessonId = value.LessonID,
-                Title = value.Title,
-                VideoUrl = value.VideoUrl,
-                CourseID = value.CourseID
+                Id = lesson.Id,
+                Title = lesson.Title,
+                VideoUrl = lesson.VideoUrl,
+                CourseId = lesson.CourseId
             };
 
-            return View(updateDto);
+            return View(dto);
         }
 
+        // ✅ Güncelle
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateLesson(UpdateLessonDto dto)
         {
             if (!ModelState.IsValid)
             {
-                var courses = await _courseService.GetAllAsync();
-                ViewBag.Courses = courses.Select(x => new { x.CourseID, x.Title }).ToList();
+                await LoadCoursesAsync();
                 return View(dto);
             }
 
             await _lessonService.UpdateAsync(dto);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
+        // ❌ Sil
+        [HttpGet]
         public async Task<IActionResult> DeleteLesson(int id)
         {
             await _lessonService.DeleteAsync(id);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

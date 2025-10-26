@@ -31,6 +31,9 @@ namespace Learnify.Business.DependencyResolvers
             services.AddScoped<IEnrollmentService, EnrollmentManager>();
             services.AddScoped<IInstructorService, InstructorManager>();
 
+            services.AddScoped<IAccountService, AccountManager>();
+
+
             return services;
         }
         public static IServiceCollection AddValidationRules(this IServiceCollection services)

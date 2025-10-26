@@ -38,7 +38,7 @@ namespace Learnify.UI.Areas.Admin.Controllers
                 .Select(c => new SelectListItem
                 {
                     Text = c.Title,
-                    Value = c.Id.ToString()
+                    Value = c.Id.ToString() // ✅ CourseID yerine Id
                 })
                 .ToList();
 
@@ -77,8 +77,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
                 return View(dto);
             }
 
-            await _enrollmentService.AddAsync(dto);
-            return RedirectToAction(nameof(Index));
+            var result = await _enrollmentService.AddAsync(dto);
+            if (result)
+                return RedirectToAction(nameof(Index));
+
+            await LoadDropdownDataAsync();
+            return View(dto);
         }
 
         // ✏️ Güncelleme formu
@@ -93,9 +97,9 @@ namespace Learnify.UI.Areas.Admin.Controllers
 
             var dto = new UpdateEnrollmentDto
             {
-                Id = enrollment.Id,
-                StudentId = enrollment.StudentId,
-                CourseId = enrollment.CourseId
+                Id = enrollment.Id,          // ✅ EnrollmentID yerine Id
+                StudentId = enrollment.StudentId, // ✅ StudentID yerine StudentId
+                CourseId = enrollment.CourseId    // ✅ CourseID yerine CourseId
             };
 
             return View(dto);
@@ -112,13 +116,16 @@ namespace Learnify.UI.Areas.Admin.Controllers
                 return View(dto);
             }
 
-            await _enrollmentService.UpdateAsync(dto);
-            return RedirectToAction(nameof(Index));
+            var result = await _enrollmentService.UpdateAsync(dto);
+            if (result)
+                return RedirectToAction(nameof(Index));
+
+            await LoadDropdownDataAsync();
+            return View(dto);
         }
 
         // ❌ Sil
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpGet]
         public async Task<IActionResult> DeleteEnrollment(int id)
         {
             await _enrollmentService.DeleteAsync(id);

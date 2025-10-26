@@ -16,49 +16,58 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _instructorService = instructorService;
         }
 
+        // 📋 Listeleme
         public async Task<IActionResult> Index()
         {
             var values = await _instructorService.GetAllAsync();
             return View(values);
         }
 
+        // ➕ Yeni eğitmen formu
         [HttpGet]
-        public IActionResult CreateInstructor()
-        {
-            return View();
-        }
+        public IActionResult CreateInstructor() => View();
 
+      
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateInstructor(CreateInstructorDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
             await _instructorService.AddAsync(dto);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
+        // ✏️ Güncelleme formu
         [HttpGet]
         public async Task<IActionResult> UpdateInstructor(int id)
         {
-            var value = await _instructorService.GetByIdAsync(id);
-            return View(value);
+            var instructor = await _instructorService.GetByIdAsync(id);
+            if (instructor == null)
+                return NotFound();
+
+            return View(instructor);
         }
 
+        // ✅ Güncelle
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateInstructor(UpdateInstructorDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
             await _instructorService.UpdateAsync(dto);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
+        // ❌ Sil
+        [HttpGet]
         public async Task<IActionResult> DeleteInstructor(int id)
         {
             await _instructorService.DeleteAsync(id);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

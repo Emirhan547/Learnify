@@ -4,6 +4,7 @@ using Learnify.DTO.DTOs.InstructorDto;
 using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Learnify.Business.Concrete
@@ -26,58 +27,67 @@ namespace Learnify.Business.Concrete
 
         public async Task<List<ResultInstructorDto>> GetAllAsync()
         {
-            var users = await Task.FromResult(_userManager.Users.ToList());
-            var instructors = users.Where(u => _userManager.IsInRoleAsync(u, "Instructor").Result).ToList();
+            // Tüm kullanıcıları getir
+            var users = _userManager.Users.ToList();
+
+            var instructors = new List<AppUser>();
+
+            // Tüm kullanıcılar arasında asenkron olarak Instructor rolünde olanları bul
+            foreach (var user in users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Instructor"))
+                    instructors.Add(user);
+            }
 
             return _mapper.Map<List<ResultInstructorDto>>(instructors);
         }
 
+
         public async Task<ResultInstructorDto?> GetByIdAsync(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null) return null;
+            if (user == null)
+                return null;
 
             var isInstructor = await _userManager.IsInRoleAsync(user, "Instructor");
-            if (!isInstructor) return null;
+            if (!isInstructor)
+                return null;
 
             return _mapper.Map<ResultInstructorDto>(user);
         }
 
-        public async Task<bool> AddAsync(CreateInstructorDto dto)
+        public async Task AddAsync(CreateInstructorDto dto)
         {
             var user = _mapper.Map<AppUser>(dto);
-            user.EmailConfirmed = true; // varsayılan olarak onaylı kabul edilebilir
+            user.EmailConfirmed = true;
 
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
-                return false;
+                return;
 
-            // "Instructor" rolü yoksa oluştur
             if (!await _roleManager.RoleExistsAsync("Instructor"))
                 await _roleManager.CreateAsync(new IdentityRole<int>("Instructor"));
 
             await _userManager.AddToRoleAsync(user, "Instructor");
-            return true;
         }
 
-        public async Task<bool> UpdateAsync(UpdateInstructorDto dto)
+        public async Task UpdateAsync(UpdateInstructorDto dto)
         {
             var user = await _userManager.FindByIdAsync(dto.Id.ToString());
-            if (user == null) return false;
+            if (user == null)
+                return;
 
             _mapper.Map(dto, user);
-            var result = await _userManager.UpdateAsync(user);
-
-            return result.Succeeded;
+            await _userManager.UpdateAsync(user);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null) return false;
+            if (user == null)
+                return;
 
-            var result = await _userManager.DeleteAsync(user);
-            return result.Succeeded;
+            await _userManager.DeleteAsync(user);
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Repositories
@@ -19,20 +17,8 @@ namespace Learnify.DataAccess.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<List<T>> GetAllAsync(string? includeProperties = null)
-        {
-            IQueryable<T> query = _dbSet.AsNoTracking();
-
-            if (!string.IsNullOrWhiteSpace(includeProperties))
-            {
-                foreach (var includeProp in includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp.Trim());
-                }
-            }
-
-            return await query.ToListAsync();
-        }
+        public async Task<List<T>> GetAllAsync() =>
+            await _dbSet.AsNoTracking().ToListAsync();
 
         public async Task<T?> GetByIdAsync(int id) =>
             await _dbSet.FindAsync(id);

@@ -34,9 +34,13 @@
     </div>
 
     <div class="mb-3">
-        <label>Eğitmen ID (opsiyonel)</label>
-        <input asp-for="InstructorId" class="form-control" type="number" />
+        <label>Eğitmen</label>
+        <select asp-for="InstructorId" asp-items="@(new SelectList(ViewBag.Instructors, "Value", "Text"))" class="form-select">
+            <option value="">Eğitmen Seçiniz</option>
+        </select>
+        <span asp-validation-for="InstructorId" class="text-danger"></span>
     </div>
+
 
     <button type="submit" class="btn btn-success">Kaydet</button>
 </form>

@@ -33,30 +33,30 @@ namespace Learnify.Business.Concrete
             return entity == null ? null : _mapper.Map<ResultLessonDto>(entity);
         }
 
-        public async Task<bool> AddAsync(CreateLessonDto dto)
+        public async Task AddAsync(CreateLessonDto dto)
         {
             var entity = _mapper.Map<Lesson>(dto);
             await _lessonDal.AddAsync(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
 
-        public async Task<bool> UpdateAsync(UpdateLessonDto dto)
+        public async Task UpdateAsync(UpdateLessonDto dto)
         {
             var entity = await _lessonDal.GetByIdAsync(dto.Id);
-            if (entity == null) return false;
+            if (entity == null) return;
 
             _mapper.Map(dto, entity);
             _lessonDal.Update(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var entity = await _lessonDal.GetByIdAsync(id);
-            if (entity == null) return false;
+            if (entity == null) return;
 
             _lessonDal.Delete(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
     }
 }

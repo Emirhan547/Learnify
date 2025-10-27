@@ -10,6 +10,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<LearnifyContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
+    .AddEntityFrameworkStores<LearnifyContext>()
+    .AddDefaultTokenProviders();
 
 // ✅ Service Extensions
 builder.Services.AddServiceExtensions();
@@ -18,16 +24,13 @@ builder.Services.AddBusinessServices();
 builder.Services.AddValidationRules();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
-    .AddEntityFrameworkStores<LearnifyContext>()
-    .AddDefaultTokenProviders();
+
 
 // ✅ Controllers with Views
 builder.Services.AddControllersWithViews();
 
 // ✅ Database Context
-builder.Services.AddDbContext<LearnifyContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 
 

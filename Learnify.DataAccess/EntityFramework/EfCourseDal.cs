@@ -17,10 +17,12 @@ namespace Learnify.DataAccess.Repositories
         public async Task<List<Course>> GetCoursesWithInstructorAsync()
         {
             return await _context.Courses
+                .Include(c => c.Category)
                 .Include(c => c.Instructor)
                 .AsNoTracking()
                 .ToListAsync();
         }
+
 
         public async Task<Course?> GetCourseDetailsAsync(int courseId)
         {

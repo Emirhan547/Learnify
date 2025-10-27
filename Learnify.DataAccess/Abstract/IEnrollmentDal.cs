@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Abstract
 {
-    public interface IEnrollmentDal:IGenericDal<Enrollment>
+    public interface IEnrollmentDal : IGenericDal<Enrollment>
     {
-        Task<List<Enrollment>> GetEnrollmentsByStudentIdAsync(int studentId);
-        Task<int> GetEnrollmentCountByCourseIdAsync(int courseId);
+        Task<List<Enrollment>> GetAllWithCourseAndStudentAsync();
+        Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id);
     }
+
 }

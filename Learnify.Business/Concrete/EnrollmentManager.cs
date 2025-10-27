@@ -23,41 +23,40 @@ namespace Learnify.Business.Concrete
 
         public async Task<List<ResultEnrollmentDto>> GetAllAsync()
         {
-            // İlişkili Course ve Student verilerini de dahil et
-            var entities = await _enrollmentDal.GetAllAsync(includeProperties: "Course,Student");
+            var entities = await _enrollmentDal.GetAllWithCourseAndStudentAsync();
             return _mapper.Map<List<ResultEnrollmentDto>>(entities);
         }
 
         public async Task<ResultEnrollmentDto?> GetByIdAsync(int id)
         {
-            var entity = await _enrollmentDal.GetByIdAsync(id);
+            var entity = await _enrollmentDal.GetByIdWithCourseAndStudentAsync(id);
             return entity == null ? null : _mapper.Map<ResultEnrollmentDto>(entity);
         }
 
-        public async Task<bool> AddAsync(CreateEnrollmentDto dto)
+        public async Task AddAsync(CreateEnrollmentDto dto)
         {
             var entity = _mapper.Map<Enrollment>(dto);
             await _enrollmentDal.AddAsync(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
 
-        public async Task<bool> UpdateAsync(UpdateEnrollmentDto dto)
+        public async Task UpdateAsync(UpdateEnrollmentDto dto)
         {
             var entity = await _enrollmentDal.GetByIdAsync(dto.Id);
-            if (entity == null) return false;
+            if (entity == null) return;
 
             _mapper.Map(dto, entity);
             _enrollmentDal.Update(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var entity = await _enrollmentDal.GetByIdAsync(id);
-            if (entity == null) return false;
+            if (entity == null) return;
 
             _enrollmentDal.Delete(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
     }
 }

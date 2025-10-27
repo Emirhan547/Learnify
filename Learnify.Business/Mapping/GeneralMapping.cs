@@ -12,14 +12,14 @@ namespace Learnify.Business.MappingProfiles
     {
         public GeneralMapping()
         {
-            // ✅ Category Mappings
             CreateMap<Course, ResultCourseDto>()
-    .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
-    .ForMember(dest => dest.InstructorName, opt => opt.MapFrom(src => src.Instructor.FullName))
-    .ReverseMap();
+             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+             .ForMember(dest => dest.InstructorName, opt => opt.MapFrom(src => src.Instructor.FullName))
+             .ReverseMap();
 
-            CreateMap<Course, CreateCourseDto>().ReverseMap();
-            CreateMap<Course, UpdateCourseDto>().ReverseMap();
+            CreateMap<CreateCourseDto, Course>().ReverseMap();
+            CreateMap<UpdateCourseDto, Course>().ReverseMap();
+
 
 
             CreateMap<Category, ResultCategoryDto>()
@@ -44,6 +44,7 @@ namespace Learnify.Business.MappingProfiles
 
             CreateMap<Lesson, CreateLessonDto>().ReverseMap();
             CreateMap<Lesson, UpdateLessonDto>().ReverseMap();
+
             CreateMap<AppUser, ResultInstructorDto>()
     .ForMember(dest => dest.CourseCount, opt => opt.MapFrom(src => src.Courses.Count))
     .ReverseMap();

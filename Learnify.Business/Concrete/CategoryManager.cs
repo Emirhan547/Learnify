@@ -33,30 +33,30 @@ namespace Learnify.Business.Concrete
             return entity == null ? null : _mapper.Map<ResultCategoryDto>(entity);
         }
 
-        public async Task<bool> AddAsync(CreateCategoryDto dto)
+        public async Task AddAsync(CreateCategoryDto dto)
         {
             var entity = _mapper.Map<Category>(dto);
             await _categoryDal.AddAsync(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
 
-        public async Task<bool> UpdateAsync(UpdateCategoryDto dto)
+        public async Task UpdateAsync(UpdateCategoryDto dto)
         {
             var entity = await _categoryDal.GetByIdAsync(dto.Id);
-            if (entity == null) return false;
+            if (entity == null) return;
 
             _mapper.Map(dto, entity);
             _categoryDal.Update(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             var entity = await _categoryDal.GetByIdAsync(id);
-            if (entity == null) return false;
+            if (entity == null) return;
 
             _categoryDal.Delete(entity);
-            return await _uow.CommitAsync() > 0;
+            await _uow.CommitAsync();
         }
     }
 }

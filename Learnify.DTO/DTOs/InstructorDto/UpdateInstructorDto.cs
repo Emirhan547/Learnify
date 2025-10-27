@@ -9,5 +9,6 @@
         public string? Profession { get; set; }
         public string? ProfileImage { get; set; }
         public bool IsActive { get; set; } = true;
+        public string Password { get; set; } = string.Empty;
     }
 }

@@ -34,6 +34,14 @@
         </select>
         <span asp-validation-for="CategoryId" class="text-danger"></span>
     </div>
+    <div class="mb-3">
+        <label>Eğitmen</label>
+        <select asp-for="InstructorId" asp-items="@(new SelectList(ViewBag.Instructors, "Value", "Text"))" class="form-select">
+            <option value="">Eğitmen Seçiniz</option>
+        </select>
+        <span asp-validation-for="InstructorId" class="text-danger"></span>
+    </div>
+
 
     <button type="submit" class="btn btn-primary">Güncelle</button>
 </form>

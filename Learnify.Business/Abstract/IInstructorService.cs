@@ -8,8 +8,8 @@ namespace Learnify.Business.Abstract
     {
         Task<List<ResultInstructorDto>> GetAllAsync();
         Task<ResultInstructorDto?> GetByIdAsync(int id);
-        Task<bool> AddAsync(CreateInstructorDto dto);
-        Task<bool> UpdateAsync(UpdateInstructorDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task AddAsync(CreateInstructorDto dto);
+        Task UpdateAsync(UpdateInstructorDto dto);
+        Task DeleteAsync(int id);
     }
 }

@@ -2,6 +2,7 @@
 using Learnify.DTO.DTOs.InstructorDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
 {
@@ -19,15 +20,15 @@ namespace Learnify.UI.Areas.Admin.Controllers
         // 📋 Listeleme
         public async Task<IActionResult> Index()
         {
-            var values = await _instructorService.GetAllAsync();
-            return View(values);
+            var instructors = await _instructorService.GetAllAsync();
+            return View(instructors);
         }
 
-        // ➕ Yeni eğitmen formu
+        // ➕ Yeni Eğitmen Formu
         [HttpGet]
         public IActionResult CreateInstructor() => View();
 
-      
+        // ✅ Yeni Eğitmen Kaydı
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateInstructor(CreateInstructorDto dto)
@@ -39,7 +40,7 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✏️ Güncelleme formu
+        // ✏️ Güncelleme Formu
         [HttpGet]
         public async Task<IActionResult> UpdateInstructor(int id)
         {
@@ -63,7 +64,8 @@ namespace Learnify.UI.Areas.Admin.Controllers
         }
 
         // ❌ Sil
-        [HttpGet]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteInstructor(int id)
         {
             await _instructorService.DeleteAsync(id);

@@ -12,22 +12,22 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfEnrollmentDal : GenericRepository<Enrollment>, IEnrollmentDal
     {
-        public EfEnrollmentDal(LearnifyContext context) : base(context)
-        {
-        }
-        public async Task<List<Enrollment>> GetEnrollmentsByStudentIdAsync(int studentId)
-        {
-            return await _context.Enrollments
-                .Include(e => e.Course)
-                .Where(e => e.Id == studentId)
-                .AsNoTracking()
-                .ToListAsync();
-        }
+        private readonly LearnifyContext _ctx;
+        public EfEnrollmentDal(LearnifyContext ctx) : base(ctx) => _ctx = ctx;
 
-        public async Task<int> GetEnrollmentCountByCourseIdAsync(int courseId)
-        {
-            return await _context.Enrollments
-                .CountAsync(e => e.Id == courseId);
-        }
+        public async Task<List<Enrollment>> GetAllWithCourseAndStudentAsync()
+            => await _ctx.Enrollments
+                         .AsNoTracking()
+                         .Include(e => e.Course)
+                         .Include(e => e.Student)
+                         .ToListAsync();
+
+        public async Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id)
+            => await _ctx.Enrollments
+                         .AsNoTracking()
+                         .Include(e => e.Course)
+                         .Include(e => e.Student)
+                         .FirstOrDefaultAsync(e => e.Id == id);
     }
+
 }

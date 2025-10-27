@@ -48,8 +48,19 @@ namespace Learnify.UI.Areas.Admin.Controllers
             if (instructor == null)
                 return NotFound();
 
-            return View(instructor);
+            // 🔹 ResultInstructorDto -> UpdateInstructorDto manuel map
+            var dto = new UpdateInstructorDto
+            {
+                Id = instructor.Id,
+                UserName = instructor.UserName,
+                FullName = instructor.FullName,
+                Email = instructor.Email,
+                Profession = instructor.Profession
+            };
+
+            return View(dto); // ✅ Artık View doğru modeli alıyor
         }
+
 
         // ✅ Güncelle
         [HttpPost]

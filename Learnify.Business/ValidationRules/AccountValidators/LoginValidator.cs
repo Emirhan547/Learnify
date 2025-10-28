@@ -12,9 +12,9 @@ namespace Learnify.Business.ValidationRules.AccountValidators
     {
         public LoginValidator()
         {
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email adresi zorunludur.")
-                .EmailAddress().WithMessage("Geçerli bir email adresi giriniz.");
+            RuleFor(x => x.UserName)
+                .NotEmpty().WithMessage("Email adresi zorunludur.");
+                
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Şifre zorunludur.");

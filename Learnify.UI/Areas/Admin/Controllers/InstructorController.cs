@@ -34,10 +34,22 @@ namespace Learnify.UI.Areas.Admin.Controllers
         public async Task<IActionResult> CreateInstructor(CreateInstructorDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Lütfen tüm alanları doğru doldurun.";
                 return View(dto);
+            }
 
-            await _instructorService.AddAsync(dto);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _instructorService.AddAsync(dto);
+                TempData["Success"] = "Eğitmen başarıyla eklendi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return View(dto);
+            }
         }
 
         // ✏️ Güncelleme Formu
@@ -48,7 +60,6 @@ namespace Learnify.UI.Areas.Admin.Controllers
             if (instructor == null)
                 return NotFound();
 
-            // 🔹 ResultInstructorDto -> UpdateInstructorDto manuel map
             var dto = new UpdateInstructorDto
             {
                 Id = instructor.Id,
@@ -58,9 +69,8 @@ namespace Learnify.UI.Areas.Admin.Controllers
                 Profession = instructor.Profession
             };
 
-            return View(dto); // ✅ Artık View doğru modeli alıyor
+            return View(dto);
         }
-
 
         // ✅ Güncelle
         [HttpPost]
@@ -68,10 +78,22 @@ namespace Learnify.UI.Areas.Admin.Controllers
         public async Task<IActionResult> UpdateInstructor(UpdateInstructorDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Lütfen geçerli bilgileri giriniz.";
                 return View(dto);
+            }
 
-            await _instructorService.UpdateAsync(dto);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _instructorService.UpdateAsync(dto);
+                TempData["Success"] = "Eğitmen bilgileri güncellendi.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return View(dto);
+            }
         }
 
         // ❌ Sil
@@ -79,7 +101,15 @@ namespace Learnify.UI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteInstructor(int id)
         {
-            await _instructorService.DeleteAsync(id);
+            try
+            {
+                await _instructorService.DeleteAsync(id);
+                TempData["Success"] = "Eğitmen başarıyla silindi.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
             return RedirectToAction(nameof(Index));
         }
     }

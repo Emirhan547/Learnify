@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using FluentValidation.AspNetCore;
 using Learnify.Business.Abstract;
 using Learnify.Business.Concrete;
 using Learnify.Business.ValidationRules.AccountValidators;
@@ -6,6 +7,7 @@ using Learnify.Business.ValidationRules.CourseValidators;
 using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Learnify.Business.DependencyResolvers
 {
@@ -32,15 +34,19 @@ namespace Learnify.Business.DependencyResolvers
             services.AddScoped<IInstructorService, InstructorManager>();
 
             services.AddScoped<IAccountService, AccountManager>();
+            services.AddScoped<IStudentService, StudentManager>();
+
 
 
             return services;
         }
-        public static IServiceCollection AddValidationRules(this IServiceCollection services)
+        public static IServiceCollection AddValidationServices(this IServiceCollection services)
         {
-            services.AddValidatorsFromAssemblyContaining<CreateCourseValidator>();
+            // Business katmanındaki validatorları otomatik bul ve ekle
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             return services;
         }
-       
+
     }
 }

@@ -58,5 +58,18 @@ namespace Learnify.Business.Concrete
             _enrollmentDal.Delete(entity);
             await _uow.CommitAsync();
         }
+
+        public async Task DeleteByStudentAndCourseAsync(int studentId, int courseId)
+        {
+            var enrollment = await _enrollmentDal
+                .FirstOrDefaultAsync(e => e.StudentId == studentId && e.CourseId == courseId);
+
+            if (enrollment != null)
+            {
+                _enrollmentDal.Delete(enrollment);
+                await _uow.CommitAsync();
+            }
+        }
+
     }
 }

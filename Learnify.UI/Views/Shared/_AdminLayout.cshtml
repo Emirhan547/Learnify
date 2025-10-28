@@ -1,15 +1,15 @@
 ﻿@*
-  Admin Layout — Tema HTML iskeletinden temizlenmiş,
-  sadece gerekli component çağrıları kalmış hali.
+  Admin Layout — Optimize edilmiş ve SweetAlert2 entegre edilmiş hali
 *@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Panel - Learnify</title>
 
+    <!-- 🧩 Tema CSS -->
     <link rel="stylesheet" href="~/pluto-1.0.0/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/pluto-1.0.0/style.css" />
     <link rel="stylesheet" href="~/pluto-1.0.0/css/responsive.css" />
@@ -17,28 +17,36 @@
     <link rel="stylesheet" href="~/pluto-1.0.0/css/bootstrap-select.css" />
     <link rel="stylesheet" href="~/pluto-1.0.0/css/perfect-scrollbar.css" />
     <link rel="stylesheet" href="~/pluto-1.0.0/css/custom.css" />
+
+    <!-- 🎨 SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="dashboard dashboard_1">
     <div class="full_container">
         <div class="inner_container">
 
+            <!-- 🧭 Sidebar -->
             @await Component.InvokeAsync("_AdminSidebarComponentPartial")
 
             <div id="content">
+                <!-- 🧱 Navbar -->
                 @await Component.InvokeAsync("_AdminNavbarComponentPartial")
 
+                <!-- 🧩 Ana İçerik -->
                 <div class="midde_cont">
                     <div class="container-fluid">
                         @RenderBody()
                     </div>
 
+                    <!-- ⚙️ Footer -->
                     @await Component.InvokeAsync("_AdminFooterComponentPartial")
                 </div>
             </div>
-
         </div>
     </div>
 
+    <!-- ⚙️ JS Dosyaları -->
     <script src="~/pluto-1.0.0/js/jquery.min.js"></script>
     <script src="~/pluto-1.0.0/js/popper.min.js"></script>
     <script src="~/pluto-1.0.0/js/bootstrap.min.js"></script>
@@ -49,5 +57,53 @@
     <script src="~/pluto-1.0.0/js/utils.js"></script>
     <script src="~/pluto-1.0.0/js/perfect-scrollbar.min.js"></script>
     <script src="~/pluto-1.0.0/js/custom.js"></script>
+
+    <!-- ✅ SweetAlert Bildirimleri -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 🎯 Başarılı işlem bildirimi
+            @if (TempData["Success"] != null)
+            {
+                    <text>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Başarılı!',
+                            text: '@TempData["Success"]',
+                            showConfirmButton: false,
+                            timer: 2200
+                        });
+                    </text>
+            }
+
+            // ❌ Hata bildirimi
+            @if (TempData["Error"] != null)
+            {
+                    <text>
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata!',
+                            text: '@TempData["Error"]',
+                            showConfirmButton: true
+                        });
+                    </text>
+            }
+
+            // ⚠️ Uyarı bildirimi
+            @if (TempData["Warning"] != null)
+            {
+                    <text>
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Uyarı!',
+                            text: '@TempData["Warning"]',
+                            showConfirmButton: true
+                        });
+                    </text>
+            }
+        });
+    </script>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

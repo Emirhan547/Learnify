@@ -19,34 +19,51 @@ namespace Learnify.DataAccess.Context
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-
-
             base.OnModelCreating(builder);
 
-            // 🔹 Tüm configuration sınıflarını otomatik uygula
+            // 🔹 Tüm entity configuration sınıflarını uygula
             builder.ApplyConfigurationsFromAssembly(typeof(LearnifyContext).Assembly);
 
-            // 🔹 BaseEntity alanlarını otomatik uygula (CreatedDate, IsActive)
+            // 🔹 BaseEntity ya da IAuditable için ortak yapılandırmalar
             builder.ApplyBaseEntityConfigurations();
         }
 
+        // 🔹 Audit otomasyonu: tüm IAuditable entity’lerde CreatedDate/UpdatedDate/IsActive otomatik set edilir
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyAuditInfo();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        public override int SaveChanges()
+        {
+            ApplyAuditInfo();
+            return base.SaveChanges();
+        }
+
+        private void ApplyAuditInfo()
         {
             var entries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is BaseEntity &&
+                .Where(e => e.Entity is IAuditable &&
                            (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            var now = DateTime.UtcNow;
 
             foreach (var entry in entries)
             {
-                var entity = (BaseEntity)entry.Entity;
-                entity.UpdatedDate = DateTime.UtcNow;
+                var entity = (IAuditable)entry.Entity;
 
                 if (entry.State == EntityState.Added)
-                    entity.CreatedDate = DateTime.UtcNow;
-            }
+                {
+                    if (entity.CreatedDate == default)
+                        entity.CreatedDate = now;
 
-            return await base.SaveChangesAsync(cancellationToken);
+                    entity.IsActive = true;
+                }
+
+                entity.UpdatedDate = now;
+            }
         }
     }
 }

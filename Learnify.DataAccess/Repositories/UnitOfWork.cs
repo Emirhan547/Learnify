@@ -1,14 +1,11 @@
-﻿using Learnify.DataAccess.Abstract;
+﻿// Learnify.DataAccess/Repositories/UnitOfWork.cs
+using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Learnify.DataAccess.Repositories
 {
-    public class UnitOfWork : IUnitOfWork, IDisposable
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly LearnifyContext _context;
 
@@ -17,14 +14,13 @@ namespace Learnify.DataAccess.Repositories
             _context = context;
         }
 
-        public async Task<int> CommitAsync()
-        {
-            return await _context.SaveChangesAsync();
-        }
+        public Task<int> CommitAsync(CancellationToken cancellationToken = default)
+            => _context.SaveChangesAsync(cancellationToken);
 
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+        public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+            => _context.Database.BeginTransactionAsync(cancellationToken);
+
+        public ValueTask DisposeAsync()
+            => _context.DisposeAsync();
     }
 }

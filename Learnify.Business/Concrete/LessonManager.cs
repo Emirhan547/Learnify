@@ -21,16 +21,17 @@ namespace Learnify.Business.Concrete
             _mapper = mapper;
         }
 
+        // 🔹 Artık kurs bilgisiyle birlikte dersleri getiriyor
         public async Task<List<ResultLessonDto>> GetAllAsync()
         {
-            var entities = await _lessonDal.GetAllAsync();
-            return _mapper.Map<List<ResultLessonDto>>(entities);
+            var lessons = await _lessonDal.GetLessonsWithCourseAsync();
+            return _mapper.Map<List<ResultLessonDto>>(lessons);
         }
 
         public async Task<ResultLessonDto?> GetByIdAsync(int id)
         {
-            var entity = await _lessonDal.GetByIdAsync(id);
-            return entity == null ? null : _mapper.Map<ResultLessonDto>(entity);
+            var lesson = await _lessonDal.GetByIdAsync(id);
+            return lesson == null ? null : _mapper.Map<ResultLessonDto>(lesson);
         }
 
         public async Task AddAsync(CreateLessonDto dto)
@@ -42,11 +43,11 @@ namespace Learnify.Business.Concrete
 
         public async Task UpdateAsync(UpdateLessonDto dto)
         {
-            var entity = await _lessonDal.GetByIdAsync(dto.Id);
-            if (entity == null) return;
+            var existing = await _lessonDal.GetByIdAsync(dto.Id);
+            if (existing == null) return;
 
-            _mapper.Map(dto, entity);
-            _lessonDal.Update(entity);
+            _mapper.Map(dto, existing);
+            _lessonDal.Update(existing);
             await _uow.CommitAsync();
         }
 

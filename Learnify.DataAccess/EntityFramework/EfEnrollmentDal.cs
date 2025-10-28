@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,6 +15,12 @@ namespace Learnify.DataAccess.Repositories
     {
         private readonly LearnifyContext _ctx;
         public EfEnrollmentDal(LearnifyContext ctx) : base(ctx) => _ctx = ctx;
+
+        public async Task<Enrollment?> FirstOrDefaultAsync(Expression<Func<Enrollment, bool>> predicate)
+        {
+            return await _context.Enrollments.FirstOrDefaultAsync(predicate);
+        }
+
 
         public async Task<List<Enrollment>> GetAllWithCourseAndStudentAsync()
             => await _ctx.Enrollments

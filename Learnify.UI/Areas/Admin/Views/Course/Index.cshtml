@@ -21,9 +21,9 @@
                         <th>Başlık</th>
                         <th>Açıklama</th>
                         <th>Ücret</th>
-                        <th>Kategori</th
-                        <th>Eğitmen</th
-                        >
+                        <th>Kategori</th>
+                        <th>Eğitmen</th>
+                        <th>Ders Sayısı</th> <!-- ✅ Yeni sütun -->
                         <th class="text-center" style="width:160px;">İşlemler</th>
                     </tr>
                 </thead>
@@ -38,6 +38,7 @@
                             <td>@item.Price ₺</td>
                             <td>@item.CategoryName</td>
                             <td>@item.InstructorName</td>
+                            <td>@item.LessonCount</td> <!-- ✅ Yeni veri -->
                             <td class="text-center">
                                 <a asp-area="Admin" asp-controller="Course" asp-action="UpdateCourse" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Güncelle</a>
                                 <form asp-area="Admin" asp-controller="Course" asp-action="DeleteCourse" asp-route-id="@item.Id" method="post" class="d-inline">

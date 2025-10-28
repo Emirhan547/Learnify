@@ -5,9 +5,9 @@
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string VideoUrl { get; set; } = string.Empty;
-        public int Order { get; set; }
 
+        // 🔹 Kurs ilişkisi
         public int CourseId { get; set; }
-        public string CourseTitle { get; set; } = string.Empty;
+        public string? CourseTitle { get; set; }
     }
 }

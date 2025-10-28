@@ -3,6 +3,8 @@ using Learnify.DTO.DTOs.LessonDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
 {
@@ -48,10 +50,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadCoursesAsync();
+                TempData["Error"] = "Lütfen tüm alanları eksiksiz doldurun.";
                 return View(dto);
             }
 
             await _lessonService.AddAsync(dto);
+            TempData["Success"] = "Ders başarıyla eklendi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -63,13 +67,14 @@ namespace Learnify.UI.Areas.Admin.Controllers
                 return NotFound();
 
             await LoadCoursesAsync();
-            return View(new UpdateLessonDto
+            var dto = new UpdateLessonDto
             {
                 Id = lesson.Id,
                 Title = lesson.Title,
                 VideoUrl = lesson.VideoUrl,
                 CourseId = lesson.CourseId
-            });
+            };
+            return View(dto);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -78,10 +83,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadCoursesAsync();
+                TempData["Error"] = "Lütfen geçerli bilgileri giriniz.";
                 return View(dto);
             }
 
             await _lessonService.UpdateAsync(dto);
+            TempData["Success"] = "Ders bilgileri güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -89,6 +96,7 @@ namespace Learnify.UI.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteLesson(int id)
         {
             await _lessonService.DeleteAsync(id);
+            TempData["Success"] = "Ders başarıyla silindi.";
             return RedirectToAction(nameof(Index));
         }
     }

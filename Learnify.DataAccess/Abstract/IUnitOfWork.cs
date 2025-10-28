@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Learnify.DataAccess/Abstract/IUnitOfWork.cs
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Learnify.DataAccess.Abstract
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IAsyncDisposable
     {
-        Task<int> CommitAsync();
-        void Dispose();
+        Task<int> CommitAsync(CancellationToken cancellationToken = default);
+        Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     }
 }

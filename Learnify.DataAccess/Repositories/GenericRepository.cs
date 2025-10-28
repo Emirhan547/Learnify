@@ -1,8 +1,8 @@
-﻿using Learnify.DataAccess.Abstract;
+﻿// Learnify.DataAccess/Repositories/GenericRepository.cs
+using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Learnify.DataAccess.Repositories
 {
@@ -17,19 +17,49 @@ namespace Learnify.DataAccess.Repositories
             _dbSet = context.Set<T>();
         }
 
-        public async Task<List<T>> GetAllAsync() =>
-            await _dbSet.AsNoTracking().ToListAsync();
+        public async Task<List<T>> GetAllAsync(
+            Expression<Func<T, bool>>? filter = null,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet.AsNoTracking();
 
-        public async Task<T?> GetByIdAsync(int id) =>
-            await _dbSet.FindAsync(id);
+            if (filter != null)
+                query = query.Where(filter);
 
-        public async Task AddAsync(T entity) =>
-            await _dbSet.AddAsync(entity);
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                    query = query.Include(include);
+            }
 
-        public void Update(T entity) =>
-            _dbSet.Update(entity);
+            return await query.ToListAsync();
+        }
 
-        public void Delete(T entity) =>
-            _dbSet.Remove(entity);
+        public async Task<T?> GetByIdAsync(
+            int id,
+            params Expression<Func<T, object>>[] includes)
+        {
+            // Not: Primary key adını bilmediğimiz için önce entity’i buluyoruz,
+            // sonra tekrar getirip include uyguluyoruz (2 sorgu).
+            var entity = await _dbSet.FindAsync(id);
+            if (entity == null) return null;
+
+            if (includes is { Length: > 0 })
+            {
+                IQueryable<T> query = _dbSet.AsQueryable();
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+                // entity aynı referanssa trackingli döner, AsNoTracking ile temizleyelim:
+                return await query.AsNoTracking()
+                                  .FirstOrDefaultAsync(e => e == entity);
+            }
+
+            return entity;
+        }
+
+        public async Task AddAsync(T entity) => await _dbSet.AddAsync(entity);
+        public void Update(T entity) => _dbSet.Update(entity);
+        public void Delete(T entity) => _dbSet.Remove(entity);
     }
 }

@@ -16,7 +16,7 @@ namespace Learnify.Entity.Concrete
 
         public int? InstructorId { get; set; }
         public AppUser? Instructor { get; set; }
-
+        
         public ICollection<Lesson>? Lessons { get; set; }
         public ICollection<Enrollment>? Enrollments { get; set; }
     }

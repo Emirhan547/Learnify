@@ -3,15 +3,17 @@
     public class ResultCourseDto
     {
         public int Id { get; set; }
-
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
 
         public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;  // 🔹 Category.Name
+        public string CategoryName { get; set; } = string.Empty;
 
         public int? InstructorId { get; set; }
-        public string? InstructorName { get; set; }               // 🔹 AppUser.FullName
+        public string? InstructorName { get; set; }
+
+        // 🔹 Yeni ekleme
+        public int LessonCount { get; set; }   // Kursa ait ders sayısı
     }
 }

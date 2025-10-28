@@ -5,46 +5,39 @@ using Learnify.DataAccess.Context;
 using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
 using Learnify.UI.Extensions;
-
+using Learnify.UI.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ✅ DbContext
 builder.Services.AddDbContext<LearnifyContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// ✅ Identity
 builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
     .AddEntityFrameworkStores<LearnifyContext>()
     .AddDefaultTokenProviders();
 
-// ✅ Service Extensions
+// ✅ Servisler
 builder.Services.AddServiceExtensions();
 builder.Services.AddBusinessServices();
-
-builder.Services.AddValidationRules();
+builder.Services.AddValidationServices();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-
 
 // ✅ Controllers with Views
 builder.Services.AddControllersWithViews();
 
-// ✅ Database Context
-
-
-
-
 // ✅ Cookie Configuration
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    // ✅ Admin paneli için özel login sayfası
-    options.LoginPath = "/Admin/Login/Index";
-    options.LogoutPath = "/Admin/Login/Logout";
+    options.LoginPath = "/Admin/Account/Login";
+    options.LogoutPath = "/Admin/Account/Logout";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.SlidingExpiration = true;
 
-    // Cookie ayarları
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
@@ -53,10 +46,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 // ✅ AutoMapper
 builder.Services.AddAutoMapper(typeof(GeneralMapping));
 
-// ✅ HttpContextAccessor
+// ✅ HttpContextAccessor & Session
 builder.Services.AddHttpContextAccessor();
-
-// ✅ Session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -66,20 +57,19 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
-// ✅ Seed Roles and Admin User
+// ✅ Rolleri seed et (Admin kullanıcı yok)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        await Learnify.DataAccess.Seeds.RoleSeeder.SeedAsync(roleManager);
     }
-
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding roles");
+        logger.LogError(ex, "Role seeding failed");
     }
 }
 
@@ -96,15 +86,14 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
 
-// ✅ Authentication & Authorization (Sıralama önemli!)
 app.UseAuthentication();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthorization();
 
 // ✅ Area Routing
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
-);
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 // ✅ Default Routing
 app.MapControllerRoute(

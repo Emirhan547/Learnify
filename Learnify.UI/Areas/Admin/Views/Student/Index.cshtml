@@ -1,0 +1,144 @@
+﻿@using Learnify.DTO.DTOs.StudentDto
+@model List<ResultStudentDto>
+
+@{
+    ViewData["Title"] = "Öğrenci Listesi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int count = 0;
+}
+
+<div class="right_content">
+    <div class="container-fluid mt-4">
+        <div class="white_shd full margin_bottom_30 p-4 shadow-sm rounded-3">
+            <div class="heading1 mb-4">
+                <h2 class="fw-bold">Öğrenci Listesi</h2>
+            </div>
+
+            <table class="table table-striped table-bordered align-middle" id="studentTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Kullanıcı Adı</th>
+                        <th>Ad Soyad</th>
+                        <th>Email</th>
+                        <th>Aldığı Kurs Sayısı</th>
+                        <th class="text-center" style="width:180px;">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        count++;
+                        <tr>
+                            <td>@count</td>
+                            <td>@item.UserName</td>
+                            <td>@item.FullName</td>
+                            <td>@item.Email</td>
+                            <td>@item.EnrollmentCount</td>
+                            <td class="text-center">
+                                <button type="button"
+                                        class="btn btn-sm btn-info view-details"
+                                        data-id="@item.Id"
+                                        data-name="@item.FullName">
+                                    Detay
+                                </button>
+                                <a asp-area="Admin" asp-controller="Student" asp-action="DeleteStudent" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Bu öğrenciyi silmek istediğinize emin misiniz?');">
+                                    Sil
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 🧩 Modal -->
+<div class="modal fade" id="studentCoursesModal" tabindex="-1" aria-labelledby="studentCoursesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="studentCoursesLabel">Öğrencinin Aldığı Kurslar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="studentCoursesContent">
+                <div class="text-center text-muted">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Yükleniyor...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // 🟢 Detay butonuna tıklayınca modalı aç
+            $(".view-details").click(function () {
+                const studentId = $(this).data("id");
+                const studentName = $(this).data("name");
+
+                $("#studentCoursesModal").data("student-id", studentId);
+                $("#studentCoursesLabel").text(`${studentName} - Kurslar`);
+                $("#studentCoursesModal").modal("show");
+
+                // Yükleniyor ekranı
+                $("#studentCoursesContent").html(`
+                    <div class="text-center text-muted">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Kurslar yükleniyor...</p>
+                    </div>
+                `);
+
+                // AJAX isteğiyle kursları getir
+                $.ajax({
+                    url: `/Admin/Student/Details/${studentId}`,
+                    type: "GET",
+                    success: function (data) {
+                        $("#studentCoursesContent").html(data);
+                    },
+                    error: function () {
+                        $("#studentCoursesContent").html(`
+                            <div class="alert alert-danger text-center">
+                                Kurs bilgileri yüklenemedi.
+                            </div>
+                        `);
+                    }
+                });
+            });
+
+            // 🟣 Kaydı Sil butonu (modal içindeki)
+            $(document).on("click", ".unenroll-btn", function () {
+                const studentId = $("#studentCoursesModal").data("student-id");
+                const courseId = $(this).data("course");
+
+                if (!confirm("Bu kurs kaydını silmek istediğinize emin misiniz?")) return;
+
+                $.ajax({
+                    url: "/Admin/Student/Unenroll",
+                    type: "POST",
+                    data: { studentId: studentId, courseId: courseId },
+                    success: function (res) {
+                        if (res.success) {
+                            alert("Kayıt başarıyla silindi.");
+                            // ✅ Modalı güncelle
+                            $.get(`/Admin/Student/Details/${studentId}`, function (data) {
+                                $("#studentCoursesContent").html(data);
+                            });
+                        } else {
+                            alert("Bir hata oluştu, işlem başarısız.");
+                        }
+                    },
+                    error: function () {
+                        alert("Sunucu hatası, lütfen tekrar deneyin.");
+                    }
+                });
+            });
+        });
+    </script>
+}

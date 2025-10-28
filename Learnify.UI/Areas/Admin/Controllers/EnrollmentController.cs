@@ -67,10 +67,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadDropdownDataAsync();
+                TempData["Error"] = "Lütfen gerekli alanları doldurun.";
                 return View(dto);
             }
 
             await _enrollmentService.AddAsync(dto);
+            TempData["Success"] = "Öğrenci başarıyla kursa kaydedildi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -82,12 +84,13 @@ namespace Learnify.UI.Areas.Admin.Controllers
                 return NotFound();
 
             await LoadDropdownDataAsync();
-            return View(new UpdateEnrollmentDto
+            var dto = new UpdateEnrollmentDto
             {
                 Id = enrollment.Id,
                 StudentId = enrollment.StudentId,
                 CourseId = enrollment.CourseId
-            });
+            };
+            return View(dto);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -96,10 +99,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadDropdownDataAsync();
+                TempData["Error"] = "Lütfen geçerli bilgileri giriniz.";
                 return View(dto);
             }
 
             await _enrollmentService.UpdateAsync(dto);
+            TempData["Success"] = "Kayıt bilgileri güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -107,7 +112,15 @@ namespace Learnify.UI.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteEnrollment(int id)
         {
             await _enrollmentService.DeleteAsync(id);
+            TempData["Success"] = "Kayıt başarıyla silindi.";
             return RedirectToAction(nameof(Index));
         }
+        [HttpPost]
+        public async Task<IActionResult> Unenroll(int studentId, int courseId)
+        {
+            await _enrollmentService.DeleteByStudentAndCourseAsync(studentId, courseId);
+            return Json(new { success = true });
+        }
+
     }
 }

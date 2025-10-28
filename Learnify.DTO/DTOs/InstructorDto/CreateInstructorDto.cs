@@ -8,5 +8,6 @@
         public string? Profession { get; set; }
         public string? ProfileImage { get; set; }
         public string Password { get; set; } = string.Empty; // 🔸 Identity için eklendi
+
     }
 }

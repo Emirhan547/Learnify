@@ -34,11 +34,14 @@ namespace Learnify.UI.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
+            // 🔹 InnerException desteği
+            var detailMessage = ex.InnerException?.Message ?? ex.Message;
+
             var response = new
             {
                 status = context.Response.StatusCode,
                 message = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
-                detail = ex.Message
+                detail = detailMessage
             };
 
             var json = JsonSerializer.Serialize(response);

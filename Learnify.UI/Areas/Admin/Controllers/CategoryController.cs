@@ -17,61 +17,50 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _categoryService = categoryService;
         }
 
-        // 📋 Kategori Listesi
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var categories = await _categoryService.GetAllAsync();
             return View(categories);
         }
 
-        // ➕ Yeni Kategori Formu
         [HttpGet]
-        public IActionResult CreateCategory() => View();
+        public IActionResult Create() => View();
 
-        // ✅ Yeni Kategori Kaydet
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCategory(CreateCategoryDto dto)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateCategoryDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
             await _categoryService.AddAsync(dto);
-            TempData["Success"] = "Kategori başarıyla eklendi.";
             return RedirectToAction(nameof(Index));
         }
 
-        // ✏️ Güncelleme Formu
         [HttpGet]
-        public async Task<IActionResult> UpdateCategory(int id)
+        public async Task<IActionResult> Update(int id)
         {
-            var category = await _categoryService.GetByIdAsync(id);
-            if (category == null)
+            var dto = await _categoryService.GetForUpdateAsync(id);
+            if (dto == null)
                 return NotFound();
 
-            return View(category);
+            return View(dto);
         }
 
-        // ✅ Güncelle
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateCategory(UpdateCategoryDto dto)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(UpdateCategoryDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
             await _categoryService.UpdateAsync(dto);
-            TempData["Success"] = "Kategori başarıyla güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
-        // ❌ Sil
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteCategory(int id)
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
         {
             await _categoryService.DeleteAsync(id);
-            TempData["Success"] = "Kategori silindi.";
             return RedirectToAction(nameof(Index));
         }
     }

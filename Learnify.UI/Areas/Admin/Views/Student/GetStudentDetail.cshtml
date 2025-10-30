@@ -1,0 +1,53 @@
+﻿@model dynamic
+
+<div class="modal-header">
+    <h5 class="modal-title">
+        <i class="bi bi-person-circle"></i> @Model.Student.FullName
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+    <div class="text-center mb-3">
+        <img src="@(string.IsNullOrEmpty(Model.Student.ProfileImage)
+                         ? Url.Content("~/images/default-avatar.png")
+                         : Url.Content(Model.Student.ProfileImage))"
+             class="rounded-circle shadow-sm"
+             style="width: 120px; height: 120px; object-fit: cover;" />
+    </div>
+
+    <ul class="list-group mb-3">
+        <li class="list-group-item">
+            <strong>Email:</strong> @Model.Student.Email
+        </li>
+        <li class="list-group-item">
+            <strong>Durum:</strong>
+            @if (Model.Student.IsActive)
+            {
+                <span class="badge bg-success">Aktif</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Pasif</span>
+            }
+        </li>
+        <li class="list-group-item">
+            <strong>Kayıt Tarihi:</strong> @Model.Student.CreatedDate.ToString("dd.MM.yyyy")
+        </li>
+    </ul>
+
+    <h6><i class="bi bi-book"></i> Kayıtlı Kurslar</h6>
+    @if (Model.Courses != null && Model.Courses.Any())
+    {
+        <ul class="list-group">
+            @foreach (var course in Model.Courses)
+            {
+                <li class="list-group-item">@course</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted">Henüz kayıtlı kursu bulunmuyor.</p>
+    }
+</div>

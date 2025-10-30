@@ -10,14 +10,17 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfCategoryDal : GenericRepository<Category>, ICategoryDal
     {
+        private readonly LearnifyContext _context;
+
         public EfCategoryDal(LearnifyContext context) : base(context)
         {
+            _context = context;
         }
 
         public async Task<List<Category>> GetActiveCategoriesAsync()
         {
             return await _context.Categories
-                .Where(x => x.IsActive)
+                .Where(c => c.IsActive)
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -26,6 +29,8 @@ namespace Learnify.DataAccess.Repositories
         {
             return await _context.Categories
                 .Include(c => c.Courses)
+                    .ThenInclude(crs => crs.Instructor)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == categoryId);
         }
     }

@@ -1,0 +1,57 @@
+﻿@model List<Learnify.DTO.DTOs.CourseDto.ResultCourseDto>
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    ViewData["Title"] = "Kayıtlı Kurslarım";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">📚 Kurslarım</h1>
+        <p class="text-muted">Kaydolduğun tüm kurslar burada.</p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info text-center py-4">
+            🎓 Henüz herhangi bir kursa katılmadın.
+            <br /><br />
+            <a asp-controller="Course" asp-action="Index" class="btn btn-primary">
+                Kurslara Göz At <i class="fa fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var course in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-lg border-0 rounded-3 h-100">
+                        <img src="@course.ImageUrl" class="card-img-top"
+                             style="object-fit:cover; height:220px;" />
+
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">@course.Title</h5>
+                            <p class="text-muted mb-2">
+                                <i class="fa fa-user-tie me-1 text-primary"></i> @course.InstructorName
+                            </p>
+                            <p class="small text-muted">@course.Duration | @course.StudentCount öğrenci</p>
+                        </div>
+
+                        <div class="card-footer bg-white d-flex justify-content-between">
+                            <a asp-controller="Course" asp-action="Detail" asp-route-id="@course.Id"
+                               class="btn btn-outline-primary btn-sm w-100 me-2">
+                                Görüntüle
+                            </a>
+
+                            <a asp-controller="Lesson" asp-action="Index" asp-route-courseId="@course.Id"
+                               class="btn btn-primary btn-sm w-100">
+                                Kursa Git
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

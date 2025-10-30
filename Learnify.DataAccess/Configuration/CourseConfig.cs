@@ -17,6 +17,9 @@ namespace Learnify.DataAccess.Configurations
             builder.Property(x => x.Price)
                    .HasColumnType("decimal(10,2)");
 
+            builder.Property(x => x.IsPublished)
+                   .HasDefaultValue(false);
+
             builder.HasOne(x => x.Category)
                    .WithMany(c => c.Courses)
                    .HasForeignKey(x => x.CategoryId)
@@ -25,7 +28,7 @@ namespace Learnify.DataAccess.Configurations
             builder.HasOne(x => x.Instructor)
                    .WithMany(i => i.Courses)
                    .HasForeignKey(x => x.InstructorId)
-                   .OnDelete(DeleteBehavior.SetNull);
+                   .OnDelete(DeleteBehavior.Restrict); // önemli
         }
     }
 }

@@ -10,23 +10,18 @@ namespace Learnify.DataAccess.Repositories
 {
     public class EfLessonDal : GenericRepository<Lesson>, ILessonDal
     {
+        private readonly LearnifyContext _context;
+
         public EfLessonDal(LearnifyContext context) : base(context)
         {
+            _context = context;
         }
 
         public async Task<List<Lesson>> GetLessonsByCourseIdAsync(int courseId)
         {
             return await _context.Lessons
-                .Where(l => l.CourseId == courseId) // ✅ düzeltildi (önceden Id == courseId idi)
+                .Where(l => l.CourseId == courseId) // düzeltme
                 .OrderBy(l => l.Order)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
-        public async Task<List<Lesson>> GetLessonsWithCourseAsync()
-        {
-            return await _context.Lessons
-                .Include(l => l.Course)
                 .AsNoTracking()
                 .ToListAsync();
         }

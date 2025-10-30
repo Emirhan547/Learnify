@@ -1,0 +1,89 @@
+﻿@model Learnify.DTO.DTOs.CourseDto.ResultCourseDto
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    bool isEnrolled = ViewBag.IsEnrolled ?? false;
+}
+
+<!-- Header -->
+<div class="container-fluid bg-primary py-5 mb-5"
+     style="background: linear-gradient(to right, #1f65ff, #4dc7ff);">
+    <div class="container py-5 text-center text-white">
+        <h1 class="display-4 fw-bold">@Model.Title</h1>
+        <p>@Model.CategoryName • @Model.InstructorName</p>
+    </div>
+</div>
+
+<!-- Course Detail -->
+<div class="container py-5">
+    <div class="row g-5">
+
+        <!-- Left: Course Info -->
+        <div class="col-lg-8">
+
+            <img src="@Model.ImageUrl" class="img-fluid rounded mb-4"
+                 style="width:100%; height:350px; object-fit:cover;" />
+
+            <h3 class="mb-3">Kurs Açıklaması</h3>
+            <p class="text-muted">@Model.Description</p>
+
+            <hr />
+
+            <h4>Ders İçeriği</h4>
+            <p>🚧 Ders listesi yakında dinamik gelecek...</p>
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="col-lg-4">
+
+            <div class="card shadow border-0 mb-4">
+                <div class="card-body text-center">
+                    <h3 class="fw-bold text-primary">@Model.Price ₺</h3>
+
+                    <!-- ✅ Enroll Button Conditions -->
+                    @if (!User.Identity!.IsAuthenticated)
+                    {
+                        <a asp-controller="Account" asp-action="Login"
+                           class="btn btn-primary w-100 py-2 my-2">
+                            <i class="fa fa-user"></i> Giriş Yap & Kursa Katıl
+                        </a>
+                    }
+                    else if (User.IsInRole("Student"))
+                    {
+                        @if (isEnrolled)
+                        {
+                            <button class="btn btn-secondary w-100 py-2 my-2" disabled>
+                                ✅ Bu kursa zaten kayıt oldunuz
+                            </button>
+                        }
+                        else
+                        {
+                            <form asp-action="Enroll" method="post">
+                                <input type="hidden" name="courseId" value="@Model.Id" />
+                                <button class="btn btn-success w-100 py-2 my-2">
+                                    <i class="fa fa-check-circle"></i> Kursa Katıl
+                                </button>
+                            </form>
+                        }
+                    }
+                    else
+                    {
+                        <span class="d-block text-danger fw-bold my-2">
+                            ❗ Bu kursa sadece öğrenci hesabı ile kayıt olabilirsiniz.
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow border-0">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Kurs Bilgileri</h5>
+                    <p><i class="fa fa-user-tie text-primary me-2"></i> Eğitmen: <b>@Model.InstructorName</b></p>
+                    <p><i class="fa fa-clock text-primary me-2"></i> Süre: <b>@Model.Duration</b></p>
+                    <p><i class="fa fa-users text-primary me-2"></i> Öğrenci: <b>@Model.StudentCount</b></p>
+                    <p><i class="fa fa-star text-warning me-2"></i> Puan: <b>@Model.Rating</b></p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

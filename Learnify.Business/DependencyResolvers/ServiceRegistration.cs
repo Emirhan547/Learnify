@@ -1,52 +1,51 @@
 ﻿using FluentValidation;
-using FluentValidation.AspNetCore;
 using Learnify.Business.Abstract;
 using Learnify.Business.Concrete;
-using Learnify.Business.ValidationRules.AccountValidators;
+using Learnify.Business.MappingProfiles;
 using Learnify.Business.ValidationRules.CourseValidators;
 using Learnify.DataAccess.Abstract;
+using Learnify.DataAccess.EntityFramework;
 using Learnify.DataAccess.Repositories;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Learnify.Business.DependencyResolvers
 {
     public static class ServiceRegistration
     {
-        public static IServiceCollection AddBusinessServices(this IServiceCollection services)
+        public static IServiceCollection AddBusinessLayerServices(this IServiceCollection services)
         {
-            // generic repo + uow
+            // 🧩 DataAccess: UnitOfWork + Repository Kayıtları
             services.AddScoped(typeof(IGenericDal<>), typeof(GenericRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // ef concrete özel dal (varsa)
             services.AddScoped<ICategoryDal, EfCategoryDal>();
             services.AddScoped<ICourseDal, EfCourseDal>();
             services.AddScoped<ILessonDal, EfLessonDal>();
             services.AddScoped<IEnrollmentDal, EfEnrollmentDal>();
-          
+            services.AddScoped<IMessageDal, EfMessageDal>();
+            services.AddScoped<INotificationDal, EfNotificationDal>();
+           
+            services.AddScoped<INotificationDal, EfNotificationDal>();
+            services.AddScoped<ILessonProgressDal, EfLessonProgressDal>();
 
-            // managers
+
+            // 🧠 Manager (Business) Katmanı
             services.AddScoped<ICategoryService, CategoryManager>();
             services.AddScoped<ICourseService, CourseManager>();
             services.AddScoped<ILessonService, LessonManager>();
             services.AddScoped<IEnrollmentService, EnrollmentManager>();
             services.AddScoped<IInstructorService, InstructorManager>();
+            services.AddScoped<IMessageService, MessageManager>();
+            services.AddScoped<INotificationService, NotificationManager>();
+            services.AddScoped<ILessonProgressService, LessonProgressManager>();
 
-            services.AddScoped<IAccountService, AccountManager>();
-            services.AddScoped<IStudentService, StudentManager>();
+            // 🔁 AutoMapper Profilleri
+            services.AddAutoMapper(typeof(GeneralMapping));
 
-
+            // ✅ FluentValidation (tüm validator’lar otomatik bulunur)
+            services.AddValidatorsFromAssemblyContaining<CreateCourseValidator>();
 
             return services;
         }
-        public static IServiceCollection AddValidationServices(this IServiceCollection services)
-        {
-            // Business katmanındaki validatorları otomatik bul ve ekle
-            services.AddFluentValidationAutoValidation();
-            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-            return services;
-        }
-
     }
 }

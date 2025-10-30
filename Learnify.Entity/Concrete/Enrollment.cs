@@ -1,5 +1,5 @@
-﻿using Learnify.Entity.Abstract;
-using System;
+﻿// Entity/Concrete/Enrollment.cs
+using Learnify.Entity.Abstract;
 
 namespace Learnify.Entity.Concrete
 {
@@ -10,7 +10,7 @@ namespace Learnify.Entity.Concrete
 
         public int CourseId { get; set; }
         public Course Course { get; set; } = null!;
-
         public DateTime EnrolledDate { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } 
     }
 }

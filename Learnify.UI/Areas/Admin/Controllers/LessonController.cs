@@ -3,7 +3,6 @@ using Learnify.DTO.DTOs.LessonDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
@@ -21,16 +20,12 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _courseService = courseService;
         }
 
-        private async Task LoadCoursesAsync()
+        private async Task LoadDropdownDataAsync()
         {
-            var courses = await _courseService.GetAllAsync();
-            ViewBag.Courses = courses.Select(c => new SelectListItem
-            {
-                Text = c.Title,
-                Value = c.Id.ToString()
-            }).ToList();
+            ViewBag.Courses = new SelectList(await _courseService.GetAllAsync(), "Id", "Title");
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var lessons = await _lessonService.GetAllAsync();
@@ -38,65 +33,53 @@ namespace Learnify.UI.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CreateLesson()
+        public async Task<IActionResult> Create()
         {
-            await LoadCoursesAsync();
+            await LoadDropdownDataAsync();
             return View();
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateLesson(CreateLessonDto dto)
+        public async Task<IActionResult> Create(CreateLessonDto dto)
         {
             if (!ModelState.IsValid)
             {
-                await LoadCoursesAsync();
-                TempData["Error"] = "Lütfen tüm alanları eksiksiz doldurun.";
+                await LoadDropdownDataAsync();
                 return View(dto);
             }
 
             await _lessonService.AddAsync(dto);
-            TempData["Success"] = "Ders başarıyla eklendi.";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public async Task<IActionResult> UpdateLesson(int id)
+        public async Task<IActionResult> Update(int id)
         {
-            var lesson = await _lessonService.GetByIdAsync(id);
-            if (lesson == null)
+            var dto = await _lessonService.GetForUpdateAsync(id);
+            if (dto == null)
                 return NotFound();
 
-            await LoadCoursesAsync();
-            var dto = new UpdateLessonDto
-            {
-                Id = lesson.Id,
-                Title = lesson.Title,
-                VideoUrl = lesson.VideoUrl,
-                CourseId = lesson.CourseId
-            };
+            await LoadDropdownDataAsync();
             return View(dto);
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateLesson(UpdateLessonDto dto)
+        public async Task<IActionResult> Update(UpdateLessonDto dto)
         {
             if (!ModelState.IsValid)
             {
-                await LoadCoursesAsync();
-                TempData["Error"] = "Lütfen geçerli bilgileri giriniz.";
+                await LoadDropdownDataAsync();
                 return View(dto);
             }
 
             await _lessonService.UpdateAsync(dto);
-            TempData["Success"] = "Ders bilgileri güncellendi.";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteLesson(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             await _lessonService.DeleteAsync(id);
-            TempData["Success"] = "Ders başarıyla silindi.";
             return RedirectToAction(nameof(Index));
         }
     }

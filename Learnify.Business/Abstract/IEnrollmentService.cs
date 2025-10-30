@@ -1,13 +1,16 @@
 ﻿using Learnify.DTO.DTOs.EnrollmentDto;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-public interface IEnrollmentService
+namespace Learnify.Business.Abstract
 {
-    Task<List<ResultEnrollmentDto>> GetAllAsync();
-    Task<ResultEnrollmentDto?> GetByIdAsync(int id);
-    Task AddAsync(CreateEnrollmentDto dto);
-    Task UpdateAsync(UpdateEnrollmentDto dto);
-    Task DeleteAsync(int id);
+    public interface IEnrollmentService : IGenericService<CreateEnrollmentDto, UpdateEnrollmentDto, ResultEnrollmentDto>
+    {
+        Task<List<ResultEnrollmentDto>> GetAllWithCourseAndStudentAsync();
+        Task<ResultEnrollmentDto?> GetByIdWithCourseAndStudentAsync(int id);
+        Task<bool> EnrollStudentAsync(int courseId, int studentId);
+        Task<bool> IsStudentEnrolledAsync(int courseId, int studentId);
 
-    // ✅ Yeni metot
-    Task DeleteByStudentAndCourseAsync(int studentId, int courseId);
+
+    }
 }

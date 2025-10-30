@@ -1,0 +1,34 @@
+﻿@model List<Learnify.DTO.DTOs.NotificationDto.ResultNotificationDto>
+
+@if (Model != null && Model.Any())
+{
+    <ul class="dropdown-menu dropdown-menu-end p-2 shadow-sm" style="width: 320px;">
+        @foreach (var n in Model)
+        {
+            <li class="mb-2 border-bottom">
+                <!-- 🔹 data-id eklendi -->
+                <a href="/Admin/Notification/Details/@n.Id" data-id="@n.Id" class="dropdown-item small">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>@n.Title</strong>
+                        <small class="text-muted">@n.CreatedDate.ToString("HH:mm")</small>
+                    </div>
+                    <small class="text-muted">
+                        @(n.Content.Length > 40 ? n.Content.Substring(0, 40) + "..." : n.Content)
+                    </small>
+                </a>
+            </li>
+        }
+
+        <li class="text-center mt-2">
+            <a href="/Admin/Notification/Index" class="dropdown-item text-primary fw-semibold">
+                Tüm Bildirimleri Gör
+            </a>
+        </li>
+    </ul>
+}
+else
+{
+    <ul class="dropdown-menu dropdown-menu-end p-2 shadow-sm" style="width: 300px;">
+        <li class="text-center text-muted small">Yeni bildiriminiz yok</li>
+    </ul>
+}

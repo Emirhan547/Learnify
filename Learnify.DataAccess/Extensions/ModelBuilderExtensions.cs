@@ -1,5 +1,6 @@
 ﻿using Learnify.Entity.Abstract;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Learnify.DataAccess.Extensions
 {
@@ -11,10 +12,12 @@ namespace Learnify.DataAccess.Extensions
             {
                 if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
                 {
-                    builder.Entity(entityType.ClrType).Property<DateTime>("CreatedDate")
+                    builder.Entity(entityType.ClrType)
+                           .Property<DateTime>("CreatedDate")
                            .HasDefaultValueSql("GETDATE()");
 
-                    builder.Entity(entityType.ClrType).Property<bool>("IsActive")
+                    builder.Entity(entityType.ClrType)
+                           .Property<bool>("IsActive")
                            .HasDefaultValue(true);
                 }
             }

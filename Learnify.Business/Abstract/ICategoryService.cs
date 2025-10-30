@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace Learnify.Business.Abstract
 {
-    public interface ICategoryService
+    public interface ICategoryService : IGenericService<CreateCategoryDto, UpdateCategoryDto, ResultCategoryDto>
     {
-        Task<List<ResultCategoryDto>> GetAllAsync();
-        Task<ResultCategoryDto?> GetByIdAsync(int id);
-        Task AddAsync(CreateCategoryDto dto);
-        Task UpdateAsync(UpdateCategoryDto dto);
-        Task DeleteAsync(int id);
+        Task<List<ResultCategoryDto>> GetActiveCategoriesAsync();
+        Task<ResultCategoryDto?> GetCategoryWithCoursesAsync(int categoryId);
+
+        // 🔹 Yeni metot
+        Task<UpdateCategoryDto?> GetForUpdateAsync(int id);
     }
 }

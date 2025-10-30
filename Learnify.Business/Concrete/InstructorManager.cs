@@ -16,23 +16,19 @@ namespace Learnify.Business.Concrete
         private readonly RoleManager<IdentityRole<int>> _roleManager;
         private readonly IMapper _mapper;
 
-        public InstructorManager(
-            UserManager<AppUser> userManager,
-            RoleManager<IdentityRole<int>> roleManager,
-            IMapper mapper)
+        public InstructorManager(UserManager<AppUser> userManager, RoleManager<IdentityRole<int>> roleManager, IMapper mapper)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _mapper = mapper;
         }
 
-        // 🔹 Tümü async, rol & aktif filtreli
+        // 🔹 Tüm eğitmenleri getir
         public async Task<List<ResultInstructorDto>> GetAllAsync()
         {
-            // Kullanıcıları gerçekten veritabanından çek (ToListAsync!)
             var users = await _userManager.Users
-                                          .Where(u => u.IsActive) // sadece aktifler
-                                          .ToListAsync();
+                .Where(u => u.IsActive)
+                .ToListAsync();
 
             var instructors = new List<AppUser>();
             foreach (var user in users)
@@ -44,64 +40,75 @@ namespace Learnify.Business.Concrete
             return _mapper.Map<List<ResultInstructorDto>>(instructors);
         }
 
+        // 🔹 ID’ye göre getir
         public async Task<ResultInstructorDto?> GetByIdAsync(int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null || !user.IsActive) return null;
-
-            var isInstructor = await _userManager.IsInRoleAsync(user, "Instructor");
-            if (!isInstructor) return null;
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
+            if (user == null || !await _userManager.IsInRoleAsync(user, "Instructor"))
+                return null;
 
             return _mapper.Map<ResultInstructorDto>(user);
         }
 
-        // 🔹 IdentityResult döndür: UI hatayı gösterebilsin
-        public async Task AddAsync(CreateInstructorDto dto)
+        // 🔹 Aktif eğitmenler
+        public async Task<List<ResultInstructorDto>> GetActiveInstructorsAsync()
         {
-            var user = _mapper.Map<AppUser>(dto);
-            user.EmailConfirmed = true;
-            user.IsActive = true;
+            var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
+            var activeInstructors = new List<AppUser>();
 
-            // Rol yoksa oluştur
-            if (!await _roleManager.RoleExistsAsync("Instructor"))
-                await _roleManager.CreateAsync(new IdentityRole<int>("Instructor"));
+            foreach (var user in users)
+            {
+                if (await _userManager.IsInRoleAsync(user, "Instructor"))
+                    activeInstructors.Add(user);
+            }
 
-            var result = await _userManager.CreateAsync(user, dto.Password);
-            if (!result.Succeeded)
-                throw new System.Exception(string.Join(" | ", result.Errors.Select(e => e.Description)));
-
-            var roleResult = await _userManager.AddToRoleAsync(user, "Instructor");
-            if (!roleResult.Succeeded)
-                throw new System.Exception(string.Join(" | ", roleResult.Errors.Select(e => e.Description)));
+            return _mapper.Map<List<ResultInstructorDto>>(activeInstructors);
         }
 
-        public async Task UpdateAsync(UpdateInstructorDto dto)
+        // ➕ Eğitmen ekle
+        public async Task<IdentityResult> AddAsync(CreateInstructorDto dto)
+        {
+            var user = new AppUser
+            {
+                FullName = dto.FullName,
+                Email = dto.Email,
+                UserName = dto.Email,
+                Profession = dto.Profession,
+                IsActive = true
+            };
+
+            var result = await _userManager.CreateAsync(user, "Default123*"); // geçici şifre
+            if (result.Succeeded)
+                await _userManager.AddToRoleAsync(user, "Instructor");
+
+            return result;
+        }
+
+        // ✏️ Güncelle
+        public async Task<IdentityResult> UpdateAsync(UpdateInstructorDto dto)
         {
             var user = await _userManager.FindByIdAsync(dto.Id.ToString());
-            if (user == null) return;
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "Kullanıcı bulunamadı." });
 
-            // Şifre UpdateInstructorDto’dan kaldırıldığı için sadece temel alanlar
-            user.UserName = dto.UserName;
             user.FullName = dto.FullName;
             user.Email = dto.Email;
+            user.UserName = dto.Email;
             user.Profession = dto.Profession;
-            user.IsActive = dto.IsActive; // UI’da checkbox kullanabilirsin
+            user.IsActive = dto.IsActive;
 
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                throw new System.Exception(string.Join(" | ", result.Errors.Select(e => e.Description)));
+            return await _userManager.UpdateAsync(user);
         }
 
-        // 🔹 Soft delete (AppUser için)
+        // ❌ Sil
         public async Task DeleteAsync(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null) return;
-
-            user.IsActive = false;
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                throw new System.Exception(string.Join(" | ", result.Errors.Select(e => e.Description)));
+            if (user != null)
+            {
+                user.IsActive = false;
+                await _userManager.UpdateAsync(user);
+            }
         }
     }
 }

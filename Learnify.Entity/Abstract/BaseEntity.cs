@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿// Entity/Abstract/BaseEntity.cs
 namespace Learnify.Entity.Abstract
 {
     public abstract class BaseEntity
@@ -8,7 +7,6 @@ namespace Learnify.Entity.Abstract
 
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedDate { get; set; }
-
         public bool IsActive { get; set; } = true;
     }
 }

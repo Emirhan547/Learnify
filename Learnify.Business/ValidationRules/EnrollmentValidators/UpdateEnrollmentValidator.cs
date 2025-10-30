@@ -12,8 +12,8 @@ namespace Learnify.Business.ValidationRules.EnrollmentValidators
     {
         public UpdateEnrollmentValidator()
         {
-            RuleFor(x => x.CourseId).GreaterThan(0);
-            RuleFor(x => x.StudentId).GreaterThan(0);
+            RuleFor(x => x.CourseId).GreaterThan(0).WithMessage("Kurs seçimi zorunludur.");
+            RuleFor(x => x.StudentId).GreaterThan(0).WithMessage("Öğrenci seçimi zorunludur.");
         }
     }
 }

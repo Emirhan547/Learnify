@@ -10,9 +10,6 @@ namespace Learnify.DataAccess.Configurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.EnrolledDate)
-                   .HasDefaultValueSql("GETDATE()");
-
             builder.HasOne(x => x.Student)
                    .WithMany(u => u.Enrollments)
                    .HasForeignKey(x => x.StudentId)

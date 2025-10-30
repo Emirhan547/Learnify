@@ -12,7 +12,6 @@ namespace Learnify.Business.ValidationRules.CategoryValidators
     {
         public UpdateCategoryValidator()
         {
-            RuleFor(x => x.Id).GreaterThan(0);
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Kategori adı boş olamaz.")
                 .MaximumLength(50).WithMessage("Kategori adı 50 karakterden uzun olamaz.");

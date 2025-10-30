@@ -5,6 +5,10 @@ using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Context
 {
@@ -12,58 +16,58 @@ namespace Learnify.DataAccess.Context
     {
         public LearnifyContext(DbContextOptions<LearnifyContext> options) : base(options) { }
 
-        public DbSet<Course> Courses { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Lesson> Lessons { get; set; }
-        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Course> Courses { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<Lesson> Lessons { get; set; } = null!;
+        public DbSet<Enrollment> Enrollments { get; set; } = null!;
+        public DbSet<Message> Messages { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<LessonProgress> LessonProgresses { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // 🔹 Tüm entity configuration sınıflarını uygula
             builder.ApplyConfigurationsFromAssembly(typeof(LearnifyContext).Assembly);
-
-            // 🔹 BaseEntity ya da IAuditable için ortak yapılandırmalar
             builder.ApplyBaseEntityConfigurations();
+
+            // 💬 Message ilişkileri
+            builder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany(u => u.SentMessages)
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Message>()
+                .HasOne(m => m.Receiver)
+                .WithMany(u => u.ReceivedMessages)
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // (İsteğe bağlı) Global filtreler
+            // builder.Entity<Course>().HasQueryFilter(c => c.IsActive);
+            // builder.Entity<Category>().HasQueryFilter(c => c.IsActive);
+            // builder.Entity<Lesson>().HasQueryFilter(l => l.IsActive);
+            // builder.Entity<Enrollment>().HasQueryFilter(e => e.IsActive);
         }
 
-        // 🔹 Audit otomasyonu: tüm IAuditable entity’lerde CreatedDate/UpdatedDate/IsActive otomatik set edilir
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            ApplyAuditInfo();
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-
-        public override int SaveChanges()
-        {
-            ApplyAuditInfo();
-            return base.SaveChanges();
-        }
-
-        private void ApplyAuditInfo()
-        {
-            var entries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is IAuditable &&
-                           (e.State == EntityState.Added || e.State == EntityState.Modified));
-
-            var now = DateTime.UtcNow;
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is BaseEntity &&
+                            (e.State == EntityState.Added || e.State == EntityState.Modified));
 
             foreach (var entry in entries)
             {
-                var entity = (IAuditable)entry.Entity;
+                var entity = (BaseEntity)entry.Entity;
+                entity.UpdatedDate = DateTime.UtcNow;
 
                 if (entry.State == EntityState.Added)
-                {
-                    if (entity.CreatedDate == default)
-                        entity.CreatedDate = now;
-
-                    entity.IsActive = true;
-                }
-
-                entity.UpdatedDate = now;
+                    entity.CreatedDate = DateTime.UtcNow;
             }
+
+            return await base.SaveChangesAsync(cancellationToken);
         }
     }
 }

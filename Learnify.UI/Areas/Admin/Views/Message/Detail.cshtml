@@ -1,0 +1,22 @@
+﻿@model Learnify.DTO.DTOs.MessageDto.ResultMessageDto
+@{
+    ViewData["Title"] = "Mesaj Detayı";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-info text-white fw-semibold">
+            Mesaj Detayı
+        </div>
+        <div class="card-body">
+            <p><strong>Kimden:</strong> @Model.SenderName</p>
+            <p><strong>Kime:</strong> @Model.ReceiverName</p>
+            <p><strong>Konu:</strong> @Model.Subject</p>
+            <hr />
+            <p>@Model.Content</p>
+            <hr />
+            <a asp-action="Inbox" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Geri Dön</a>
+        </div>
+    </div>
+</div>

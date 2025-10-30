@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using Learnify.DTO.DTOs.AccountDto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Learnify.Business.ValidationRules.AccountValidators
 {
@@ -13,14 +8,14 @@ namespace Learnify.Business.ValidationRules.AccountValidators
         public ChangePasswordValidator()
         {
             RuleFor(x => x.CurrentPassword)
-                .NotEmpty().WithMessage("Mevcut şifre zorunludur.");
+                .NotEmpty().WithMessage("Mevcut şifre boş olamaz.");
 
             RuleFor(x => x.NewPassword)
-                .NotEmpty().WithMessage("Yeni şifre zorunludur.")
-                .MinimumLength(6).WithMessage("Yeni şifre en az 6 karakter olmalıdır.");
+                .NotEmpty().WithMessage("Yeni şifre boş olamaz.")
+                .MinimumLength(6).WithMessage("Yeni şifre en az 6 karakter olmalı.");
 
             RuleFor(x => x.ConfirmPassword)
-                .Equal(x => x.NewPassword).WithMessage("Şifreler eşleşmiyor.");
+                .Equal(x => x.NewPassword).WithMessage("Yeni şifreler eşleşmiyor.");
         }
     }
 }

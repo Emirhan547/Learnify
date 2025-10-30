@@ -2,39 +2,45 @@
 using Learnify.DataAccess.Context;
 using Learnify.Entity.Concrete;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Repositories
 {
     public class EfEnrollmentDal : GenericRepository<Enrollment>, IEnrollmentDal
     {
-        private readonly LearnifyContext _ctx;
-        public EfEnrollmentDal(LearnifyContext ctx) : base(ctx) => _ctx = ctx;
+        private readonly LearnifyContext _context;
 
-        public async Task<Enrollment?> FirstOrDefaultAsync(Expression<Func<Enrollment, bool>> predicate)
+        public EfEnrollmentDal(LearnifyContext context) : base(context)
         {
-            return await _context.Enrollments.FirstOrDefaultAsync(predicate);
+            _context = context;
         }
 
-
         public async Task<List<Enrollment>> GetAllWithCourseAndStudentAsync()
-            => await _ctx.Enrollments
-                         .AsNoTracking()
-                         .Include(e => e.Course)
-                         .Include(e => e.Student)
-                         .ToListAsync();
+        {
+            return await _context.Enrollments
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Instructor)
+                .Include(e => e.Student)
+                .AsNoTracking()
+                .ToListAsync();
+        }
 
         public async Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id)
-            => await _ctx.Enrollments
-                         .AsNoTracking()
-                         .Include(e => e.Course)
-                         .Include(e => e.Student)
-                         .FirstOrDefaultAsync(e => e.Id == id);
-    }
+        {
+            return await _context.Enrollments
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Instructor)
+                .Include(e => e.Student)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
 
+        public async Task<List<Enrollment>> GetWhere(Expression<Func<Enrollment, bool>> filter)
+        {
+            return await _context.Enrollments.Where(filter).ToListAsync();
+        }
+
+    }
 }

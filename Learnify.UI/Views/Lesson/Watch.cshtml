@@ -1,0 +1,54 @@
+﻿@model Learnify.DTO.DTOs.LessonDto.ResultLessonDto
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+    var lessons = ViewBag.Lessons as List<Learnify.DTO.DTOs.LessonDto.ResultLessonDto>;
+}
+
+<div class="container py-5">
+    <div class="row g-4">
+
+        <!-- 🎥 Video Alanı -->
+        <div class="col-lg-8">
+            <div class="ratio ratio-16x9 shadow rounded">
+                <iframe src="@Model.VideoUrl" allowfullscreen class="rounded"></iframe>
+            </div>
+
+            <h3 class="mt-4 fw-bold">@Model.Title</h3>
+            <p class="text-muted">@Model.Description</p>
+
+            <hr>
+
+            <a asp-action="Index" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">
+                Ders Listesine Dön
+            </a>
+
+            @{
+                // sonraki ders butonu
+                var next = lessons?.SkipWhile(x => x.Id != Model.Id).Skip(1).FirstOrDefault();
+                if (next != null)
+                {
+                    <a asp-action="Watch" asp-route-lessonId="@next.Id" class="btn btn-success ms-2">
+                        Sonraki Ders →
+                    </a>
+                    ;
+                }
+            }
+
+        </div>
+
+        <!-- 📚 Ders Listesi Sidebar -->
+        <div class="col-lg-4">
+            <h5 class="fw-bold">Tüm Dersler</h5>
+
+            <div class="list-group shadow-sm">
+                @foreach (var item in lessons)
+                {
+                    <a asp-action="Watch" asp-route-lessonId="@item.Id"
+                       class="list-group-item list-group-item-action @(item.Id == Model.Id ? "active text-white" : "")">
+                        ▶ @item.Title
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

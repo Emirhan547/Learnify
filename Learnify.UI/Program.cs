@@ -3,8 +3,9 @@ using Learnify.Business.MappingProfiles;
 using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
 using Learnify.DataAccess.Repositories;
+using Learnify.DataAccess.Seeds;
 using Learnify.Entity.Concrete;
-using Learnify.UI.Extensions;
+
 using Learnify.UI.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +22,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
     .AddDefaultTokenProviders();
 
 // ✅ Servisler
-builder.Services.AddServiceExtensions();
-builder.Services.AddBusinessServices();
-builder.Services.AddValidationServices();
+builder.Services.AddBusinessLayerServices();
+builder.Services.AddAutoMapper(typeof(GeneralMapping));
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // ✅ Controllers with Views
@@ -61,16 +62,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
-    {
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
-        await Learnify.DataAccess.Seeds.RoleSeeder.SeedAsync(roleManager);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Role seeding failed");
-    }
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    await RoleSeed.EnsureRolesAsync(roleManager);
 }
 
 // ✅ Error Handling

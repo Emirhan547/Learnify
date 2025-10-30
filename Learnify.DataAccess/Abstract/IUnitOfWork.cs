@@ -1,11 +1,15 @@
-﻿// Learnify.DataAccess/Abstract/IUnitOfWork.cs
-using Microsoft.EntityFrameworkCore.Storage;
-
+﻿
 namespace Learnify.DataAccess.Abstract
 {
     public interface IUnitOfWork : IAsyncDisposable
     {
-        Task<int> CommitAsync(CancellationToken cancellationToken = default);
-        Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+        ICategoryDal Categories { get; }
+        ICourseDal Courses { get; }
+        ILessonDal Lessons { get; }
+        IEnrollmentDal Enrollments { get; }
+        IMessageDal Messages { get; }
+        INotificationDal Notifications { get; }
+        ILessonProgressDal LessonProgresses { get; }
+        Task<int> SaveChangesAsync();
     }
 }

@@ -1,0 +1,47 @@
+﻿@model Learnify.DTO.DTOs.MessageDto.CreateMessageDto
+@{
+    ViewData["Title"] = "Yeni Mesaj";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-header bg-primary text-white fw-semibold">
+            Yeni Mesaj Gönder
+        </div>
+        <div class="card-body">
+            <form asp-action="NewMessage" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="ReceiverId" class="form-label fw-semibold">Alıcı</label>
+                    <select asp-for="ReceiverId" asp-items="ViewBag.Users" class="form-select">
+                        <option value="">Seçiniz</option>
+                    </select>
+                    <span asp-validation-for="ReceiverId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Subject" class="form-label fw-semibold"></label>
+                    <input asp-for="Subject" class="form-control" placeholder="Konu" />
+                    <span asp-validation-for="Subject" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Content" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Content" class="form-control" rows="5" placeholder="Mesajınızı yazın..."></textarea>
+                    <span asp-validation-for="Content" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" name="actionType" value="draft" class="btn btn-secondary me-2">
+                        <i class="bi bi-file-earmark-text"></i> Taslak Kaydet
+                    </button>
+                    <button type="submit" name="actionType" value="send" class="btn btn-success">
+                        <i class="bi bi-send"></i> Gönder
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

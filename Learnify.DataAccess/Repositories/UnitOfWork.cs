@@ -1,7 +1,6 @@
-﻿// Learnify.DataAccess/Repositories/UnitOfWork.cs
-using Learnify.DataAccess.Abstract;
+﻿using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
-using Microsoft.EntityFrameworkCore.Storage;
+using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Repositories
 {
@@ -9,18 +8,38 @@ namespace Learnify.DataAccess.Repositories
     {
         private readonly LearnifyContext _context;
 
-        public UnitOfWork(LearnifyContext context)
+        public ICategoryDal Categories { get; }
+        public ICourseDal Courses { get; }
+        public ILessonDal Lessons { get; }
+        public IEnrollmentDal Enrollments { get; }
+
+        public IMessageDal Messages { get; }
+
+        public INotificationDal Notifications { get; }
+
+        public ILessonProgressDal LessonProgresses { get; }
+
+        public UnitOfWork(LearnifyContext context,
+                          ICategoryDal categoryDal,
+                          ICourseDal courseDal,
+                          ILessonDal lessonDal,
+                          IMessageDal messageDal,
+                          IEnrollmentDal enrollmentDal,
+                          INotificationDal notification,
+                          ILessonProgressDal lessonProgresses)
         {
             _context = context;
+            Categories = categoryDal;
+            Courses = courseDal;
+            Lessons = lessonDal;
+            Enrollments = enrollmentDal;
+            Messages = messageDal;
+            Notifications = notification;
+            LessonProgresses = lessonProgresses;
         }
 
-        public Task<int> CommitAsync(CancellationToken cancellationToken = default)
-            => _context.SaveChangesAsync(cancellationToken);
+        public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();
 
-        public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
-            => _context.Database.BeginTransactionAsync(cancellationToken);
-
-        public ValueTask DisposeAsync()
-            => _context.DisposeAsync();
+        public async ValueTask DisposeAsync() => await _context.DisposeAsync();
     }
 }

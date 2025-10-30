@@ -4,12 +4,11 @@ using System.Threading.Tasks;
 
 namespace Learnify.Business.Abstract
 {
-    public interface ICourseService
+    public interface ICourseService : IGenericService<CreateCourseDto, UpdateCourseDto, ResultCourseDto>
     {
-        Task<List<ResultCourseDto>> GetAllAsync();
-        Task<ResultCourseDto?> GetByIdAsync(int id);
-        Task AddAsync(CreateCourseDto dto);
-        Task UpdateAsync(UpdateCourseDto dto);
-        Task DeleteAsync(int id);
+        Task<List<ResultCourseDto>> GetCoursesWithInstructorAsync();
+        Task<ResultCourseDto?> GetCourseDetailsAsync(int courseId);
+        Task<List<ResultCourseDto>> GetCoursesByCategoryIdAsync(int categoryId);
+        Task<UpdateCourseDto?> GetForUpdateAsync(int id);
     }
 }

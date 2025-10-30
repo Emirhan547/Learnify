@@ -3,6 +3,8 @@ using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
 {
@@ -16,12 +18,7 @@ namespace Learnify.UI.Areas.Admin.Controllers
         private readonly ILessonService _lessonService;
         private readonly UserManager<AppUser> _userManager;
 
-        public DashboardController(
-            ICourseService courseService,
-            ICategoryService categoryService,
-            IEnrollmentService enrollmentService,
-            ILessonService lessonService,
-            UserManager<AppUser> userManager)
+        public DashboardController(ICourseService courseService, ICategoryService categoryService, IEnrollmentService enrollmentService, ILessonService lessonService, UserManager<AppUser> userManager)
         {
             _courseService = courseService;
             _categoryService = categoryService;
@@ -32,13 +29,13 @@ namespace Learnify.UI.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // İstatistikler
             var courses = await _courseService.GetAllAsync();
             var categories = await _categoryService.GetAllAsync();
             var enrollments = await _enrollmentService.GetAllAsync();
             var lessons = await _lessonService.GetAllAsync();
-            var students = _userManager.Users.Where(u => u.Profession == null || u.Profession == "Student").Count();
-            var instructors = _userManager.Users.Where(u => u.Profession != null && u.Profession != "Student").Count();
+
+            var students = _userManager.Users.Count(u => u.Profession == "Student");
+            var instructors = _userManager.Users.Count(u => u.Profession != "Student");
 
             ViewBag.TotalCourses = courses.Count;
             ViewBag.TotalCategories = categories.Count;
@@ -46,8 +43,6 @@ namespace Learnify.UI.Areas.Admin.Controllers
             ViewBag.TotalLessons = lessons.Count;
             ViewBag.TotalStudents = students;
             ViewBag.TotalInstructors = instructors;
-
-            // Son 5 kayıt
             ViewBag.RecentEnrollments = enrollments.OrderByDescending(x => x.EnrolledDate).Take(5).ToList();
 
             return View();

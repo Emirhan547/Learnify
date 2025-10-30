@@ -1,10 +1,5 @@
 ﻿using FluentValidation;
 using Learnify.DTO.DTOs.AccountDto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Learnify.Business.ValidationRules.AccountValidators
 {
@@ -12,12 +7,12 @@ namespace Learnify.Business.ValidationRules.AccountValidators
     {
         public LoginValidator()
         {
-            RuleFor(x => x.UserName)
-                .NotEmpty().WithMessage("Email adresi zorunludur.");
-                
+            RuleFor(x => x.Email)
+                .NotEmpty().WithMessage("E-posta adresi zorunludur.")
+                .EmailAddress().WithMessage("Geçerli bir e-posta adresi girin.");
 
             RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("Şifre zorunludur.");
+                .NotEmpty().WithMessage("Şifre boş olamaz.");
         }
     }
 }

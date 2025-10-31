@@ -73,5 +73,12 @@ namespace Learnify.Business.Concrete
             _unitOfWork.Notifications.Update(notification);
             await _unitOfWork.SaveChangesAsync();
         }
+
+        public async Task<List<ResultNotificationDto>> GetAllByUserIdAsync(int userId)
+        {
+            var values = await _unitOfWork.Notifications.GetAllAsync(x => x.UserId == userId);
+            return _mapper.Map<List<ResultNotificationDto>>(values);
+        }
+
     }
 }

@@ -1,0 +1,43 @@
+﻿@model dynamic
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<div class="container py-5">
+    <h3 class="fw-bold mb-4">📚 Kurslarım</h3>
+
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            var course = item.Course;
+            int completed = item.CompletedLessons;
+            int total = item.TotalLessons;
+            int progress = total == 0 ? 0 : (completed * 100 / total);
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0">
+                    <img src="@course.ImageUrl" class="card-img-top" style="height:180px; object-fit:cover;" />
+
+                    <div class="card-body">
+                        <h5 class="fw-bold">@course.Title</h5>
+                        <p class="text-muted">@course.CategoryName</p>
+
+                        <!-- Progress Bar -->
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width:@progress%" aria-valuenow="@progress"
+                                 aria-valuemin="0" aria-valuemax="100">
+                                @progress%
+                            </div>
+                        </div>
+
+                        <a asp-controller="Lesson" asp-action="Index" asp-route-courseId="@course.Id"
+                           class="btn btn-primary w-100">
+                            Derse Başla
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

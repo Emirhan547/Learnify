@@ -9,12 +9,15 @@ namespace Learnify.DTO.DTOs.EnrollmentDto
 
         public string StudentName { get; set; } = null!;
         public string CourseTitle { get; set; } = null!;
+        public string InstructorName { get; set; } = null!;
         public int StudentId { get; set; }   // 👈 eklendi
         public int CourseId { get; set; }
         // ✅ Tarih ve durum alanları eklendi
         public DateTime EnrolledDate { get; set; }
         public bool IsActive { get; set; }
-        public ResultCourseDto Course { get; set; } = null!;
+        public int TotalLessons { get; set; }
+        public int CompletedLessons { get; set; }
+        public ResultCourseDto Course { get; set; }
 
     }
 }

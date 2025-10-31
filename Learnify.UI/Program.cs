@@ -83,6 +83,12 @@ app.UseAuthentication();
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthorization();
 
+
+app.MapControllerRoute(
+  name: "areas",
+  pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+    
+
 // ✅ Area Routing
 app.MapControllerRoute(
     name: "areas",

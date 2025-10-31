@@ -21,11 +21,12 @@ namespace Learnify.DataAccess.Repositories
         {
             return await _context.Enrollments
                 .Include(e => e.Course)
-                    .ThenInclude(c => c.Instructor)
+                .ThenInclude(c => c.Lessons)
                 .Include(e => e.Student)
-                .AsNoTracking()
+                .Include(e => e.LessonProgresses) // ✅ Eklendi
                 .ToListAsync();
         }
+
 
         public async Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id)
         {

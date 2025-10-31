@@ -1,4 +1,5 @@
 ﻿using Learnify.Business.Abstract;
+using Learnify.DTO.DTOs.LessonProgressDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -10,11 +11,13 @@ namespace Learnify.UI.Controllers
     {
         private readonly ILessonService _lessonService;
         private readonly IEnrollmentService _enrollmentService;
+        private readonly ILessonProgressService _lessonProgressService;
 
-        public LessonController(ILessonService lessonService, IEnrollmentService enrollmentService)
+        public LessonController(ILessonService lessonService, IEnrollmentService enrollmentService, ILessonProgressService lessonProgressService)
         {
             _lessonService = lessonService;
             _enrollmentService = enrollmentService;
+            _lessonProgressService = lessonProgressService;
         }
 
         public async Task<IActionResult> Index(int courseId)
@@ -55,6 +58,27 @@ namespace Learnify.UI.Controllers
 
             return View(lesson);
         }
+        [Authorize(Roles = "Student")]
+        [HttpPost]
+        public async Task<IActionResult> CompleteLesson(int lessonId)
+        {
+            var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            await _lessonProgressService.AddOrUpdateAsync(new CreateLessonProgressDto
+            {
+                LessonId = lessonId,
+                StudentId = studentId,
+                IsCompleted = true
+            });
+
+            TempData["Success"] = "Dersi tamamladınız 🎉";
+
+            // dersin kursunu çek
+            var lesson = await _lessonService.GetByIdAsync(lessonId);
+
+            return RedirectToAction("Watch", new { lessonId });
+        }
+
 
     }
 }

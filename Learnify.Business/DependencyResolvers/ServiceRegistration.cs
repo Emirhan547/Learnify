@@ -27,7 +27,7 @@ namespace Learnify.Business.DependencyResolvers
            
             services.AddScoped<INotificationDal, EfNotificationDal>();
             services.AddScoped<ILessonProgressDal, EfLessonProgressDal>();
-
+            services.AddScoped<ICourseReviewDal, EfCourseReviewDal>();
 
             // 🧠 Manager (Business) Katmanı
             services.AddScoped<ICategoryService, CategoryManager>();
@@ -38,7 +38,7 @@ namespace Learnify.Business.DependencyResolvers
             services.AddScoped<IMessageService, MessageManager>();
             services.AddScoped<INotificationService, NotificationManager>();
             services.AddScoped<ILessonProgressService, LessonProgressManager>();
-
+            services.AddScoped<ICourseReviewService, CourseReviewManager>();
             // 🔁 AutoMapper Profilleri
             services.AddAutoMapper(typeof(GeneralMapping));
 

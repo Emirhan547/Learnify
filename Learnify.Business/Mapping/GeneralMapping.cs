@@ -2,6 +2,7 @@
 using Learnify.DTO.DTOs.AccountDto;
 using Learnify.DTO.DTOs.CategoryDto;
 using Learnify.DTO.DTOs.CourseDto;
+using Learnify.DTO.DTOs.CourseReviewDto;
 using Learnify.DTO.DTOs.EnrollmentDto;
 using Learnify.DTO.DTOs.InstructorDto;
 using Learnify.DTO.DTOs.LessonDto;
@@ -89,6 +90,11 @@ namespace Learnify.Business.MappingProfiles
 
             CreateMap<CreateLessonProgressDto, LessonProgress>();
             CreateMap<UpdateLessonProgressDto, LessonProgress>();
+
+            CreateMap<CourseReview, ResultCourseReviewDto>()
+    .ForMember(dest => dest.StudentName, opt => opt.MapFrom(src => src.Student.FullName));
+
+            CreateMap<CreateCourseReviewDto, CourseReview>();
         }
     }
 }

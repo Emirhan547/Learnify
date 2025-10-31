@@ -2,6 +2,7 @@
 @{
     Layout = "~/Views/Shared/_StudentLayout.cshtml";
     var lessons = ViewBag.Lessons as List<Learnify.DTO.DTOs.LessonDto.ResultLessonDto>;
+    var completed = ViewBag.Completed as List<int>;
 }
 
 <div class="container py-5">
@@ -18,34 +19,67 @@
 
             <hr>
 
-            <a asp-action="Index" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">
-                Ders Listesine Dön
-            </a>
+            <div class="d-flex align-items-center">
 
-            @{
-                // sonraki ders butonu
-                var next = lessons?.SkipWhile(x => x.Id != Model.Id).Skip(1).FirstOrDefault();
-                if (next != null)
-                {
-                    <a asp-action="Watch" asp-route-lessonId="@next.Id" class="btn btn-success ms-2">
-                        Sonraki Ders →
-                    </a>
-                    ;
+                <!-- 📚 Ders Listesine Dön -->
+                <a asp-action="Index" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">
+                    Ders Listesine Dön
+                </a>
+
+                <!-- 👉 Sonraki Ders -->
+                @{
+                    var next = lessons?.SkipWhile(x => x.Id != Model.Id).Skip(1).FirstOrDefault();
+                    if (next != null)
+                    {
+                        <a asp-action="Watch" asp-route-lessonId="@next.Id" class="btn btn-success ms-2">
+                            Sonraki Ders →
+                        </a>
+                        ;
+                    }
                 }
-            }
 
+                <!-- ✅ Dersi Tamamla -->
+                <form asp-action="CompleteLesson" method="post" class="ms-2 d-inline">
+                    <input type="hidden" name="lessonId" value="@Model.Id" />
+                    @if (completed != null && completed.Contains(Model.Id))
+                    {
+                        <button type="button" class="btn btn-outline-success disabled">
+                            ✔ Tamamlandı
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary">
+                            ✅ Dersi Tamamla
+                        </button>
+                    }
+                </form>
+
+            </div>
         </div>
 
         <!-- 📚 Ders Listesi Sidebar -->
         <div class="col-lg-4">
-            <h5 class="fw-bold">Tüm Dersler</h5>
+            <h5 class="fw-bold mb-3">Tüm Dersler</h5>
 
             <div class="list-group shadow-sm">
                 @foreach (var item in lessons)
                 {
+                    var isActive = item.Id == Model.Id ? "active text-white" : "";
+                    bool isDone = completed != null && completed.Contains(item.Id);
+
                     <a asp-action="Watch" asp-route-lessonId="@item.Id"
-                       class="list-group-item list-group-item-action @(item.Id == Model.Id ? "active text-white" : "")">
-                        ▶ @item.Title
+                       class="list-group-item list-group-item-action @isActive">
+                        @if (isDone)
+                        {
+                            <span>✅ </span>
+                        }
+                        else
+                        {
+
+                            <span>▶ </span>
+                        }
+                        @item.Title
                     </a>
                 }
             </div>

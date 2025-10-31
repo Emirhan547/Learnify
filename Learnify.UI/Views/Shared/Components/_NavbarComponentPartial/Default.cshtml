@@ -6,9 +6,7 @@
 <header>
     <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
         <a asp-controller="Home" asp-action="Index" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
-            <h2 class="m-0 text-primary">
-                <i class="fa fa-book me-3"></i>Learnify
-            </h2>
+            <h2 class="m-0 text-primary"><i class="fa fa-book me-3"></i>Learnify</h2>
         </a>
 
         <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -29,37 +27,57 @@
                 var user = await UserManager.GetUserAsync(User);
                 var role = (await UserManager.GetRolesAsync(user)).FirstOrDefault();
 
-                <div class="d-flex align-items-center me-3">
-                    <span class="me-2 fw-bold text-primary">@user.FullName</span>
+                <div class="dropdown me-4">
+                    <a class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fa fa-user"></i> @user.FullName
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+
+                        @if (role == "Student")
+                        {
+                            <li>
+                                <a asp-area="Student" asp-controller="Courses" asp-action="Index" class="dropdown-item">
+                                    🎓 Kurslarım
+                                </a>
+                            </li>
+
+                            <li>
+                                <a asp-area="Student" asp-controller="Profile" asp-action="Index" class="dropdown-item">
+                                    👤 Profilim
+                                </a>
+                            </li>
+
+                            <li>
+                                <a asp-area="Student" asp-controller="Notification" asp-action="Index" class="dropdown-item">
+                                    🔔 Bildirimlerim
+                                </a>
+                            </li>
+                        }
+
+                        @if (role == "Instructor")
+                        {
+                            <li>
+                                <a asp-area="Instructor" asp-controller="Dashboard" asp-action="Index" class="dropdown-item">
+                                    🧑‍🏫 Eğitmen Paneli
+                                </a>
+                            </li>
+                        }
+
+                        <li><hr class="dropdown-divider" /></li>
+
+                        <li>
+                            <form asp-controller="StudentAccount" asp-action="Logout" method="post" class="d-inline">
+                                <button class="dropdown-item text-danger">🚪 Çıkış Yap</button>
+                            </form>
+                        </li>
+                    </ul>
                 </div>
-
-                @* Öğrenci için Kurslarım *@
-                @if (role == "Student")
-                {
-                    <a asp-controller="Course" asp-action="MyCourses" class="btn btn-outline-primary py-2 px-3 me-2">
-                        Kurslarım
-                    </a>
-                }
-
-                @* Eğitmen Paneli *@
-                @if (role == "Instructor")
-                {
-                    <a asp-area="Instructor" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-warning py-2 px-3 me-2">
-                        Eğitmen Paneli
-                    </a>
-                }
-
-                @* Çıkış *@
-                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-danger py-2 px-3">
-                        Çıkış Yap
-                    </button>
-                </form>
             }
             else
             {
-                <a asp-controller="Account" asp-action="Login" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">
-                    Giriş / Kaydol <i class="fa fa-arrow-right ms-3"></i>
+                <a asp-controller="StudentAccount" asp-action="Login"
+                   class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">
+                    Giriş / Kaydol <i class="fa fa-arrow-right ms-2"></i>
                 </a>
             }
         </div>

@@ -10,6 +10,7 @@ namespace Learnify.DataAccess.Abstract
         IMessageDal Messages { get; }
         INotificationDal Notifications { get; }
         ILessonProgressDal LessonProgresses { get; }
+        ICourseReviewDal CourseReviews { get; }
         Task<int> SaveChangesAsync();
     }
 }

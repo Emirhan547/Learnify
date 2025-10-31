@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace Learnify.UI.Controllers
 {
@@ -20,6 +22,7 @@ namespace Learnify.UI.Controllers
             _userManager = userManager;
         }
 
+        // 🔹 Tüm kurslar
         public async Task<IActionResult> Index()
         {
             var courses = await _courseService.GetAllAsync();
@@ -27,6 +30,7 @@ namespace Learnify.UI.Controllers
             return View(activeCourses);
         }
 
+        // 🔹 Kurs Detay
         public async Task<IActionResult> Detail(int id)
         {
             var course = await _courseService.GetByIdAsync(id);
@@ -43,9 +47,10 @@ namespace Learnify.UI.Controllers
             return View(course);
         }
 
-        // ✅ Kursa Katıl
+        // 🔹 Kursa Katıl (POST)
         [Authorize(Roles = "Student")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Enroll(int courseId)
         {
             var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -59,6 +64,8 @@ namespace Learnify.UI.Controllers
 
             return RedirectToAction("Detail", new { id = courseId });
         }
+
+        // 🔹 Öğrencinin kurs listesi
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyCourses()
         {
@@ -72,6 +79,5 @@ namespace Learnify.UI.Controllers
 
             return View(myCourses);
         }
-
     }
 }

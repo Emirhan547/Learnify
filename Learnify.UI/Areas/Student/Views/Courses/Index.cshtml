@@ -1,0 +1,28 @@
+﻿@model List<Learnify.DTO.DTOs.EnrollmentDto.ResultEnrollmentDto>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_StudentPanelLayout.cshtml";
+}
+
+<h2 class="fw-bold mb-3">🎓 Kurslarım</h2>
+
+<table class="table table-hover bg-white rounded shadow-sm">
+    <thead>
+        <tr>
+            <th>Kurs</th>
+            <th>Eğitmen</th>
+            <th>Tarih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CourseTitle</td>
+                <td>@item.InstructorName</td>
+                <td>@item.EnrolledDate.ToShortDateString()</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

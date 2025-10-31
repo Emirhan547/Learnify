@@ -57,9 +57,10 @@
                         }
                         else
                         {
-                            <form asp-action="Enroll" method="post">
+                            <form asp-action="Enroll" method="post" class="d-grid gap-2 my-2">
+                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="courseId" value="@Model.Id" />
-                                <button class="btn btn-success w-100 py-2 my-2">
+                                <button type="submit" class="btn btn-success w-100 py-2">
                                     <i class="fa fa-check-circle"></i> Kursa Katıl
                                 </button>
                             </form>

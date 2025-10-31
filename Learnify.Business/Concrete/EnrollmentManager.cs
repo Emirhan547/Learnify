@@ -60,9 +60,24 @@ namespace Learnify.Business.Concrete
 
         public async Task<List<ResultEnrollmentDto>> GetAllWithCourseAndStudentAsync()
         {
-            var values = await _unitOfWork.Enrollments.GetAllWithCourseAndStudentAsync();
-            return _mapper.Map<List<ResultEnrollmentDto>>(values);
+            var enrollments = await _unitOfWork.Enrollments.GetAllWithCourseAndStudentAsync();
+
+            var mapped = _mapper.Map<List<ResultEnrollmentDto>>(enrollments);
+
+            foreach (var item in mapped)
+            {
+                item.TotalLessons = enrollments
+                    .First(x => x.Id == item.Id)
+                    .Course.Lessons.Count;
+
+                item.CompletedLessons = enrollments
+                    .First(x => x.Id == item.Id)
+                    .LessonProgresses.Count(lp => lp.IsCompleted);
+            }
+
+            return mapped;
         }
+
 
         public async Task<ResultEnrollmentDto?> GetByIdWithCourseAndStudentAsync(int id)
         {
@@ -77,19 +92,21 @@ namespace Learnify.Business.Concrete
                 e.CourseId == courseId && e.StudentId == studentId);
 
             if (exists != null && exists.Any())
-                return false; // Zaten kayıtlı
+                return false; // zaten kayıtlı
 
             var entity = new Enrollment
             {
                 CourseId = courseId,
                 StudentId = studentId,
-                EnrolledDate = DateTime.UtcNow
+                EnrolledDate = DateTime.UtcNow,
+                Status = "Active" // ✅ Status ekledik
             };
 
             await _unitOfWork.Enrollments.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
+
 
         public async Task<bool> IsStudentEnrolledAsync(int courseId, int studentId)
         {

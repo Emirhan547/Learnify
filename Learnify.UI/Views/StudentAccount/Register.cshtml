@@ -1,0 +1,40 @@
+﻿@model Learnify.DTO.DTOs.AccountDto.RegisterDto
+@{
+    Layout = "~/Views/Shared/_StudentLayout.cshtml";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+
+            <h3 class="text-center mb-4">Öğrenci Kayıt</h3>
+
+            <form asp-action="Register" method="post">
+
+                <div class="mb-3">
+                    <label class="form-label">Ad Soyad</label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span class="text-danger" asp-validation-for="FullName"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">E-posta</label>
+                    <input asp-for="Email" class="form-control" />
+                    <span class="text-danger" asp-validation-for="Email"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Şifre</label>
+                    <input asp-for="Password" class="form-control" type="password" />
+                    <span class="text-danger" asp-validation-for="Password"></span>
+                </div>
+
+                <button class="btn btn-primary w-100">Kayıt Ol</button>
+
+                <div class="text-center mt-3">
+                    Zaten hesabın var mı? <a asp-action="Login">Giriş Yap</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

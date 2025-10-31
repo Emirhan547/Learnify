@@ -1,0 +1,41 @@
+﻿@model Learnify.DTO.DTOs.AccountDto.UpdateStudentProfileDto
+@{
+    Layout = "~/Views/Shared/_StudentPanelLayout.cshtml";
+}
+
+<h2 class="fw-bold mb-4">👤 Profil Ayarları</h2>
+
+<div class="card p-4 shadow-sm bg-white">
+
+    <form asp-action="Index" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" asp-for="Id" />
+
+        <!-- Profil Foto -->
+        <div class="text-center mb-3">
+            <img src="@Model.ExistingImage"
+                 class="rounded-circle border"
+                 style="width:120px;height:120px;object-fit:cover;" />
+
+            <div class="mt-2">
+                <input asp-for="ProfileImage" type="file" class="form-control" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Ad Soyad</label>
+            <input asp-for="FullName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">E-posta</label>
+            <input asp-for="Email" class="form-control" disabled />
+        </div>
+
+        <button class="btn btn-primary w-100">Kaydet</button>
+    </form>
+
+    <a asp-action="ChangePassword" class="btn btn-outline-secondary w-100 mt-3">
+        🔐 Şifre Değiştir
+    </a>
+</div>

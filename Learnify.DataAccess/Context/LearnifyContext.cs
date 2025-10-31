@@ -23,6 +23,7 @@ namespace Learnify.DataAccess.Context
         public DbSet<Message> Messages { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; } = null!;
         public DbSet<LessonProgress> LessonProgresses { get; set; }
+        public DbSet<CourseReview> CourseReviews { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -44,6 +45,11 @@ namespace Learnify.DataAccess.Context
                 .WithMany(u => u.ReceivedMessages)
                 .HasForeignKey(m => m.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<LessonProgress>()
+       .HasOne(lp => lp.Enrollment)
+       .WithMany(e => e.LessonProgresses)
+       .HasForeignKey(lp => lp.EnrollmentId)
+       .OnDelete(DeleteBehavior.NoAction);
 
             // (İsteğe bağlı) Global filtreler
             // builder.Entity<Course>().HasQueryFilter(c => c.IsActive);

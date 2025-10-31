@@ -19,6 +19,8 @@ namespace Learnify.DataAccess.Repositories
 
         public ILessonProgressDal LessonProgresses { get; }
 
+        public ICourseReviewDal CourseReviews { get; }
+
         public UnitOfWork(LearnifyContext context,
                           ICategoryDal categoryDal,
                           ICourseDal courseDal,
@@ -26,7 +28,8 @@ namespace Learnify.DataAccess.Repositories
                           IMessageDal messageDal,
                           IEnrollmentDal enrollmentDal,
                           INotificationDal notification,
-                          ILessonProgressDal lessonProgresses)
+                          ILessonProgressDal lessonProgresses,
+                          ICourseReviewDal courseReviews)
         {
             _context = context;
             Categories = categoryDal;
@@ -36,6 +39,7 @@ namespace Learnify.DataAccess.Repositories
             Messages = messageDal;
             Notifications = notification;
             LessonProgresses = lessonProgresses;
+            CourseReviews = courseReviews;
         }
 
         public async Task<int> SaveChangesAsync() => await _context.SaveChangesAsync();

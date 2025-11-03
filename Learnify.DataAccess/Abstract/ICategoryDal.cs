@@ -8,5 +8,6 @@ namespace Learnify.DataAccess.Abstract
     {
         Task<List<Category>> GetActiveCategoriesAsync();
         Task<Category?> GetCategoryWithCoursesAsync(int categoryId);
+        Task<List<Category>> GetAllWithCourseCountAsync();
     }
 }

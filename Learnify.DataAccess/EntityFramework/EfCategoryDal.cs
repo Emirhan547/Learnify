@@ -25,6 +25,13 @@ namespace Learnify.DataAccess.Repositories
                 .ToListAsync();
         }
 
+        public async Task<List<Category>> GetAllWithCourseCountAsync()
+        {
+            return await _context.Categories
+                .Include(x => x.Courses)
+                .ToListAsync();
+        }
+
         public async Task<Category?> GetCategoryWithCoursesAsync(int categoryId)
         {
             return await _context.Categories

@@ -1,33 +1,39 @@
-﻿using Learnify.DataAccess.Abstract;
+using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
 using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
-public class EfEnrollmentDal : GenericRepository<Enrollment>, IEnrollmentDal
+namespace Learnify.DataAccess.EntityFramework
 {
-    public EfEnrollmentDal(LearnifyContext context) : base(context) { }
-
-    public async Task<List<Enrollment>> GetAllWithCourseAndStudentAsync()
+    public class EfEnrollmentDal : GenericRepository<Enrollment>, IEnrollmentDal
     {
-        return await Query()
-            .Include(e => e.Course).ThenInclude(c => c.Lessons)
-            .Include(e => e.Student)
-            .Include(e => e.LessonProgresses)
-            .ToListAsync();
-    }
+        public EfEnrollmentDal(LearnifyContext context) : base(context) { }
 
-    public async Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id)
-    {
-        return await Query()
-            .Include(e => e.Course).ThenInclude(c => c.Instructor)
-            .Include(e => e.Student)
-            .FirstOrDefaultAsync(e => e.Id == id);
-    }
+        public async Task<List<Enrollment>> GetAllWithCourseAndStudentAsync()
+        {
+            return await Query()
+                .Include(e => e.Course).ThenInclude(c => c.Lessons)
+                .Include(e => e.Student)
+                .Include(e => e.LessonProgresses)
+                .ToListAsync();
+        }
 
-    public async Task<List<Enrollment>> GetWhere(Expression<System.Func<Enrollment, bool>> filter)
-    {
-        return await Query().Where(filter).ToListAsync();
+        public async Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id)
+        {
+            return await Query()
+                .Include(e => e.Course).ThenInclude(c => c.Instructor)
+                .Include(e => e.Student)
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        public async Task<List<Enrollment>> GetWhere(Expression<System.Func<Enrollment, bool>> filter)
+        {
+            return await Query().Where(filter).ToListAsync();
+        }
     }
 }

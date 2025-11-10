@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Learnify.Business\Learnify.Business.csproj" />
+	  <ProjectReference Include="..\Learnify.DTO\Learnify.DTO.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,7 +2,6 @@
 using Learnify.DTO.DTOs.LessonDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
@@ -20,31 +19,30 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _courseService = courseService;
         }
 
-        private async Task LoadDropdownDataAsync()
-        {
-            ViewBag.Courses = new SelectList(await _courseService.GetAllAsync(), "Id", "Title");
-        }
-
+        // 📘 Dersleri listele
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var lessons = await _lessonService.GetAllAsync();
-            return View(lessons);
+            var result = await _lessonService.GetAllAsync();
+            return View(result.Data);
         }
 
+        // ➕ Yeni ders oluşturma sayfası
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await LoadDropdownDataAsync();
+            var courses = await _courseService.GetAllAsync();
+            ViewBag.Courses = courses.Data;
             return View();
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        // ✅ Yeni ders ekle
+        [HttpPost]
         public async Task<IActionResult> Create(CreateLessonDto dto)
         {
             if (!ModelState.IsValid)
             {
-                await LoadDropdownDataAsync();
+                ViewBag.Courses = (await _courseService.GetAllAsync()).Data;
                 return View(dto);
             }
 
@@ -52,23 +50,25 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // ✏️ Güncelleme formu
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var dto = await _lessonService.GetForUpdateAsync(id);
-            if (dto == null)
+            var result = await _lessonService.GetForUpdateAsync(id);
+            if (!result.Success || result.Data == null)
                 return NotFound();
 
-            await LoadDropdownDataAsync();
-            return View(dto);
+            ViewBag.Courses = (await _courseService.GetAllAsync()).Data;
+            return View(result.Data);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        // ✅ Güncelleme işlemi
+        [HttpPost]
         public async Task<IActionResult> Update(UpdateLessonDto dto)
         {
             if (!ModelState.IsValid)
             {
-                await LoadDropdownDataAsync();
+                ViewBag.Courses = (await _courseService.GetAllAsync()).Data;
                 return View(dto);
             }
 
@@ -76,11 +76,20 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        // ❌ Ders sil
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             await _lessonService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        // 📄 Bir kursun derslerini getir (isteğe bağlı endpoint)
+        [HttpGet]
+        public async Task<IActionResult> ByCourse(int courseId)
+        {
+            var result = await _lessonService.GetLessonsByCourseIdAsync(courseId);
+            return View("Index", result.Data);
         }
     }
 }

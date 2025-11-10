@@ -1,5 +1,6 @@
 ﻿// Entity/Concrete/Enrollment.cs
 using Learnify.Entity.Abstract;
+using Learnify.Entity.Enums;
 
 namespace Learnify.Entity.Concrete
 {
@@ -10,8 +11,10 @@ namespace Learnify.Entity.Concrete
 
         public int CourseId { get; set; }
         public Course Course { get; set; } = null!;
+
+        public EnrollmentStatus Status { get; set; } = EnrollmentStatus.Enrolled;
+
         public DateTime EnrolledDate { get; set; } = DateTime.UtcNow;
-        public string Status { get; set; }
-        public ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
+        public List<LessonProgress> LessonProgresses { get; set; } = new();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Learnify.Entity.Abstract;
+using Learnify.Entity.Enums;
 using System;
 
 namespace Learnify.Entity.Concrete
@@ -11,14 +12,11 @@ namespace Learnify.Entity.Concrete
         public string Subject { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
 
-        public DateTime Date { get; set; } = DateTime.UtcNow;
-        public bool IsRead { get; set; } = false;
-        public bool IsDraft { get; set; } = false;
-        public bool IsDeleted { get; set; } = false;
-        public bool IsSpam { get; set; } = false;
+        public MessageStatus Status { get; set; } = MessageStatus.Inbox;
+        public bool IsRead { get; set; }
 
-        // 🔗 Navigation Properties
         public AppUser Sender { get; set; } = null!;
         public AppUser Receiver { get; set; } = null!;
+        public DateTime Date { get; set; }
     }
 }

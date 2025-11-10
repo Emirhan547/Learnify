@@ -13,5 +13,6 @@ namespace Learnify.DTO.DTOs.CourseReviewDto
         public string Comment { get; set; } = string.Empty;
         public string StudentName { get; set; } = string.Empty;
         public DateTime ReviewDate { get; set; }
+        public int CourseId { get; set; }
     }
 }

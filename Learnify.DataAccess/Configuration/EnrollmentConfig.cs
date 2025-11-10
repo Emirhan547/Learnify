@@ -8,8 +8,6 @@ namespace Learnify.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<Enrollment> builder)
         {
-            builder.HasKey(x => x.Id);
-
             builder.HasOne(x => x.Student)
                    .WithMany(u => u.Enrollments)
                    .HasForeignKey(x => x.StudentId)
@@ -19,6 +17,10 @@ namespace Learnify.DataAccess.Configurations
                    .WithMany(c => c.Enrollments)
                    .HasForeignKey(x => x.CourseId)
                    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(x => x.Status)
+    .HasConversion<string>(); // enum'u DB'de string tutar — çok okunaklı
+
         }
     }
 }

@@ -17,19 +17,30 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _instructorService = instructorService;
         }
 
-        // 📋 Listeleme
+        // 📋 Tüm eğitmenleri listele
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var instructors = await _instructorService.GetAllAsync();
-            return View(instructors);
+            var result = await _instructorService.GetAllAsync();
+            return View(result.Data);
         }
 
-        // ➕ Yeni Eğitmen Formu
+        // 🟢 Aktif eğitmenleri listele
         [HttpGet]
-        public IActionResult Create() => View();
+        public async Task<IActionResult> Active()
+        {
+            var result = await _instructorService.GetActiveInstructorsAsync();
+            return View("Index", result.Data);
+        }
 
-        // ✅ Yeni Eğitmen Ekle
+        // ➕ Yeni eğitmen formu
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // 💾 Eğitmen ekle
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateInstructorDto dto)
@@ -41,27 +52,27 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✏️ Güncelleme Formu
+        // ✏️ Eğitmen düzenleme sayfası
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var instructor = await _instructorService.GetByIdAsync(id);
-            if (instructor == null)
+            var result = await _instructorService.GetByIdAsync(id);
+            if (!result.Success || result.Data == null)
                 return NotFound();
 
-            var dto = new UpdateInstructorDto
+            var updateDto = new UpdateInstructorDto
             {
-                Id = instructor.Id,
-                FullName = instructor.FullName,
-                Email = instructor.Email,
-                Profession = instructor.Profession,
-                IsActive = instructor.IsActive
+                Id = result.Data.Id,
+                FullName = result.Data.FullName,
+                Email = result.Data.Email,
+                Profession = result.Data.Profession,
+                IsActive = result.Data.IsActive
             };
 
-            return View(dto);
+            return View(updateDto);
         }
 
-        // ✅ Güncelle
+        // ✅ Eğitmen güncelle
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(UpdateInstructorDto dto)
@@ -73,7 +84,7 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ❌ Sil
+        // ❌ Eğitmeni pasife al
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

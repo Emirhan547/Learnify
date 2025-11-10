@@ -17,17 +17,20 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _categoryService = categoryService;
         }
 
+        // Listeleme
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryService.GetAllAsync();
-            return View(categories);
+            var result = await _categoryService.GetAllAsync();
+            return View(result.Data);
         }
 
+        // Yeni kategori formu
         [HttpGet]
         public IActionResult Create() => View();
 
-        [HttpPost, ValidateAntiForgeryToken]
+        // Ekleme
+        [HttpPost]
         public async Task<IActionResult> Create(CreateCategoryDto dto)
         {
             if (!ModelState.IsValid)
@@ -37,17 +40,16 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Güncelleme formu
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var dto = await _categoryService.GetForUpdateAsync(id);
-            if (dto == null)
-                return NotFound();
-
-            return View(dto);
+            var result = await _categoryService.GetForUpdateAsync(id);
+            return View(result.Data);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        // Güncelleme işlemi
+        [HttpPost]
         public async Task<IActionResult> Update(UpdateCategoryDto dto)
         {
             if (!ModelState.IsValid)
@@ -57,7 +59,8 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        // Silme
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             await _categoryService.DeleteAsync(id);

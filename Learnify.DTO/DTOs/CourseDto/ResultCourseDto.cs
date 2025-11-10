@@ -10,10 +10,9 @@
         public decimal Price { get; set; }
         public bool IsActive { get; set; }
 
-        // ✅ Home sayfası için ek alanlar
-        public string ImageUrl { get; set; } = null!;
+        public string? ImageUrl { get; set; }
         public double Rating { get; set; }
         public int StudentCount { get; set; }
-        public string Duration { get; set; } 
+        public string? Duration { get; set; }
     }
 }

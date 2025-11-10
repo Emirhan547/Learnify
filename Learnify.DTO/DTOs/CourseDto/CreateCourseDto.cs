@@ -8,10 +8,7 @@
         public int InstructorId { get; set; }
 
         public decimal Price { get; set; }
-        public bool IsActive { get; set; } = true;
-
-        // ✅ Yeni alanlar
-        public string ImageUrl { get; set; } 
-        public string Duration { get; set; } 
+        public string? ImageUrl { get; set; }
+        public string? Duration { get; set; }
     }
 }

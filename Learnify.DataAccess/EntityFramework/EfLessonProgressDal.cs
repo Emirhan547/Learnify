@@ -13,22 +13,18 @@ namespace Learnify.DataAccess.EntityFramework
 {
     public class EfLessonProgressDal : GenericRepository<LessonProgress>, ILessonProgressDal
     {
-        private readonly LearnifyContext _context;
-        public EfLessonProgressDal(LearnifyContext context) : base(context)
-        {
-            _context = context;
-        }
+        public EfLessonProgressDal(LearnifyContext context) : base(context) { }
 
         public async Task<LessonProgress?> GetByLessonAndStudentAsync(int lessonId, int studentId)
         {
-            return await _context.LessonProgresses
-                .FirstOrDefaultAsync(x => x.LessonId == lessonId && x.StudentId == studentId);
+            return await Query()
+                .FirstOrDefaultAsync(lp => lp.LessonId == lessonId && lp.StudentId == studentId);
         }
 
         public async Task<int> GetCompletedCountByCourseAndStudentAsync(int courseId, int studentId)
         {
-            return await _context.LessonProgresses
-                .Where(x => x.CourseId == courseId && x.StudentId == studentId && x.IsCompleted)
+            return await Query()
+                .Where(lp => lp.CourseId == courseId && lp.StudentId == studentId && lp.IsCompleted)
                 .CountAsync();
         }
     }

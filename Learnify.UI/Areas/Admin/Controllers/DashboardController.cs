@@ -1,5 +1,6 @@
 ﻿using Learnify.Business.Abstract;
 using Learnify.Entity.Concrete;
+using Learnify.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,38 +15,49 @@ namespace Learnify.UI.Areas.Admin.Controllers
     {
         private readonly ICourseService _courseService;
         private readonly ICategoryService _categoryService;
+        private readonly IInstructorService _instructorService;
         private readonly IEnrollmentService _enrollmentService;
-        private readonly ILessonService _lessonService;
         private readonly UserManager<AppUser> _userManager;
 
-        public DashboardController(ICourseService courseService, ICategoryService categoryService, IEnrollmentService enrollmentService, ILessonService lessonService, UserManager<AppUser> userManager)
+        public DashboardController(
+            ICourseService courseService,
+            ICategoryService categoryService,
+            IInstructorService instructorService,
+            IEnrollmentService enrollmentService,
+            UserManager<AppUser> userManager)
         {
             _courseService = courseService;
             _categoryService = categoryService;
+            _instructorService = instructorService;
             _enrollmentService = enrollmentService;
-            _lessonService = lessonService;
             _userManager = userManager;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var courses = await _courseService.GetAllAsync();
             var categories = await _categoryService.GetAllAsync();
+            var instructors = await _instructorService.GetAllAsync();
             var enrollments = await _enrollmentService.GetAllAsync();
-            var lessons = await _lessonService.GetAllAsync();
+            var students = await _userManager.GetUsersInRoleAsync("Student");
 
-            var students = _userManager.Users.Count(u => u.Profession == "Student");
-            var instructors = _userManager.Users.Count(u => u.Profession != "Student");
+            var model = new DashboardViewModel
+            {
+                TotalCourses = courses.Data?.Count ?? 0,
+                TotalCategories = categories.Data?.Count ?? 0,
+                TotalInstructors = instructors.Data?.Count ?? 0,
+                TotalStudents = students.Count,
+                TotalEnrollments = enrollments.Data?.Count ?? 0,
+                LatestCourses = courses.Data?.Take(5).ToList(),
+                LatestStudents = students
+                    .Where(s => s.IsActive)
+                    .OrderByDescending(s => s.Id)
+                    .Take(5)
+                    .ToList()
+            };
 
-            ViewBag.TotalCourses = courses.Count;
-            ViewBag.TotalCategories = categories.Count;
-            ViewBag.TotalEnrollments = enrollments.Count;
-            ViewBag.TotalLessons = lessons.Count;
-            ViewBag.TotalStudents = students;
-            ViewBag.TotalInstructors = instructors;
-            ViewBag.RecentEnrollments = enrollments.OrderByDescending(x => x.EnrolledDate).Take(5).ToList();
-
-            return View();
+            return View(model);
         }
     }
 }

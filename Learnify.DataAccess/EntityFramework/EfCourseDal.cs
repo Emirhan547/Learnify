@@ -1,49 +1,40 @@
 ﻿using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
+using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Learnify.DataAccess.Repositories
+public class EfCourseDal : GenericRepository<Course>, ICourseDal
 {
-    public class EfCourseDal : GenericRepository<Course>, ICourseDal
+    public EfCourseDal(LearnifyContext context) : base(context) { }
+
+    public async Task<List<Course>> GetCoursesWithInstructorAsync()
     {
-        private readonly LearnifyContext _context;
+        return await Query()
+            .Include(c => c.Instructor)
+            .Include(c => c.Category)
+            .ToListAsync();
+    }
 
-        public EfCourseDal(LearnifyContext context) : base(context)
-        {
-            _context = context;
-        }
+    public async Task<Course?> GetCourseDetailsAsync(int courseId)
+    {
+        return await Query()
+            .Where(c => c.Id == courseId)
+            .Include(c => c.Instructor)
+            .Include(c => c.Category)
+            .Include(c => c.Lessons)
+            .FirstOrDefaultAsync();
+    }
 
-        public async Task<List<Course>> GetCoursesWithInstructorAsync()
-        {
-            return await _context.Courses
-                .Include(c => c.Instructor)
-                .Include(c => c.Category)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
-        public async Task<Course?> GetCourseDetailsAsync(int courseId)
-        {
-            return await _context.Courses
-                .Include(c => c.Instructor)
-                .Include(c => c.Lessons)
-                .Include(c => c.Category)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == courseId);
-        }
-
-        public async Task<List<Course>> GetCoursesByCategoryIdAsync(int categoryId)
-        {
-            return await _context.Courses
-                .Where(c => c.CategoryId == categoryId) // düzeltme
-                .Include(c => c.Instructor)
-                .Include(c => c.Category)
-                .AsNoTracking()
-                .ToListAsync();
-        }
+    public async Task<List<Course>> GetCoursesByCategoryIdAsync(int categoryId)
+    {
+        return await Query()
+            .Where(c => c.CategoryId == categoryId)
+            .Include(c => c.Instructor)
+            .Include(c => c.Category)
+            .ToListAsync();
     }
 }

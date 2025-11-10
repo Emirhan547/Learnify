@@ -1,15 +1,13 @@
 ﻿using Learnify.Entity.Concrete;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Abstract
 {
     public interface IMessageDal : IGenericDal<Message>
     {
-        Task<List<Message>> GetInboxMessagesAsync(int userId);
-        Task<List<Message>> GetSentMessagesAsync(int userId);
-        Task<List<Message>> GetDraftMessagesAsync(int userId);
-        Task<List<Message>> GetDeletedMessagesAsync(int userId);
-        Task<List<Message>> GetSpamMessagesAsync(int userId);
+        Task<List<Message>> GetInboxAsync(int userId);
+        Task<List<Message>> GetSentAsync(int userId);
+        Task<List<Message>> GetDraftsAsync(int userId);
+        Task<List<Message>> GetDeletedAsync(int userId);
+        Task<List<Message>> GetSpamAsync(int userId);
     }
 }

@@ -16,20 +16,30 @@ namespace Learnify.UI.Areas.Student.Controllers
             _notificationService = notificationService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var notifications = await _notificationService.GetAllByUserIdAsync(studentId);
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _notificationService.GetAllByUserIdAsync(userId);
 
-            return View(notifications.OrderByDescending(x => x.CreatedDate).ToList());
+            if (!result.Success || result.Data == null)
+                return View(new List<DTO.DTOs.NotificationDto.ResultNotificationDto>());
+
+            var notifications = result.Data
+                .OrderByDescending(x => x.CreatedDate)
+                .ToList();
+
+            return View(notifications);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
-            var notification = await _notificationService.GetByIdAsync(id);
-            if (notification == null) return RedirectToAction("Index");
+            var result = await _notificationService.GetByIdAsync(id);
+            if (!result.Success || result.Data == null)
+                return RedirectToAction(nameof(Index));
 
-            return View(notification);
+            return View(result.Data);
         }
     }
 }

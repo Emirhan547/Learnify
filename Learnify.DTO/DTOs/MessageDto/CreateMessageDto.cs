@@ -2,10 +2,10 @@
 {
     public class CreateMessageDto
     {
-        public int SenderId { get; set; }
         public int ReceiverId { get; set; }
-        public string Subject { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
+        public string Subject { get; set; } = "";
+        public string Content { get; set; } = "";
         public bool IsDraft { get; set; } = false;
+        public object SenderId { get; set; }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Repositories
 {
@@ -20,22 +16,55 @@ namespace Learnify.DataAccess.Repositories
             _dbSet = _context.Set<T>();
         }
 
-        public async Task<List<T>> GetAllAsync() =>
-            await _dbSet.AsNoTracking().ToListAsync();
+        // -------- QUERY --------
+        public IQueryable<T> Query(bool tracking = false)
+        {
+            return tracking
+                ? _dbSet.AsQueryable()
+                : _dbSet.AsNoTracking().AsQueryable();
+        }
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate) =>
-            await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+        public async Task<T?> GetByIdAsync(int id, bool tracking = false)
+        {
+            return tracking
+                ? await _dbSet.FindAsync(id)
+                : await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => EF.Property<int>(x, "Id") == id);
+        }
 
-        public async Task<T?> GetByIdAsync(int id) =>
-            await _dbSet.FindAsync(id);
+        public async Task<List<T>> GetAllAsync()
+        {
+            return await _dbSet.AsNoTracking().ToListAsync();
+        }
 
-        public async Task AddAsync(T entity) =>
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+        }
+
+        // -------- COMMAND --------
+        public async Task AddAsync(T entity)
+        {
             await _dbSet.AddAsync(entity);
+        }
 
-        public void Update(T entity) =>
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
+        public void Update(T entity)
+        {
             _dbSet.Update(entity);
+        }
 
-        public void Delete(T entity) =>
+        public void Delete(T entity)
+        {
             _dbSet.Remove(entity);
+        }
+
+        public void DeleteRange(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
     }
 }

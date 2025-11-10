@@ -11,22 +11,19 @@ namespace Learnify.UI.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        public StudentAccountController(UserManager<AppUser> userManager,
-                                        SignInManager<AppUser> signInManager,
-                                        RoleManager<IdentityRole<int>> roleManager)
+        public StudentAccountController(
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager,
+            RoleManager<IdentityRole<int>> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
         }
 
-        // ✅ Register GET
-        public IActionResult Register()
-        {
-            return View();
-        }
+        [HttpGet]
+        public IActionResult Register() => View();
 
-        // ✅ Register POST
         [HttpPost]
         public async Task<IActionResult> Register(RegisterDto model)
         {
@@ -41,32 +38,25 @@ namespace Learnify.UI.Controllers
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
-
             if (!result.Succeeded)
             {
-                foreach (var item in result.Errors)
-                    ModelState.AddModelError("", item.Description);
+                foreach (var err in result.Errors)
+                    ModelState.AddModelError("", err.Description);
                 return View(model);
             }
 
-            // ✅ Student rolü yoksa oluştur
             if (!await _roleManager.RoleExistsAsync("Student"))
                 await _roleManager.CreateAsync(new IdentityRole<int>("Student"));
 
             await _userManager.AddToRoleAsync(user, "Student");
 
             TempData["Success"] = "Kayıt başarılı! Şimdi giriş yapabilirsiniz.";
-            return RedirectToAction("Login");
+            return RedirectToAction(nameof(Login));
         }
 
+        [HttpGet]
+        public IActionResult Login() => View();
 
-        // ✅ Login GET
-        public IActionResult Login()
-        {
-            return View();
-        }
-
-        // ✅ Login POST
         [HttpPost]
         public async Task<IActionResult> Login(LoginDto model)
         {
@@ -74,7 +64,6 @@ namespace Learnify.UI.Controllers
                 return View(model);
 
             var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "E-posta veya şifre hatalı.");
@@ -84,8 +73,6 @@ namespace Learnify.UI.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-
-        // ✅ Logout
         [HttpPost]
         public async Task<IActionResult> Logout()
         {

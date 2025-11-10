@@ -1,4 +1,5 @@
-﻿using Learnify.DTO.DTOs.InstructorDto;
+﻿using Learnify.Business.Utilities.Results;
+using Learnify.DTO.DTOs.InstructorDto;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,13 +8,12 @@ namespace Learnify.Business.Abstract
 {
     public interface IInstructorService
     {
-        Task<List<ResultInstructorDto>> GetAllAsync();
-        Task<ResultInstructorDto?> GetByIdAsync(int id);
-        Task<List<ResultInstructorDto>> GetActiveInstructorsAsync();
+        Task<IDataResult<List<ResultInstructorDto>>> GetAllAsync();
+        Task<IDataResult<ResultInstructorDto>> GetByIdAsync(int id);
+        Task<IDataResult<List<ResultInstructorDto>>> GetActiveInstructorsAsync();
 
-        // Yeni eklenen CRUD metotları:
-        Task<IdentityResult> AddAsync(CreateInstructorDto dto);
-        Task<IdentityResult> UpdateAsync(UpdateInstructorDto dto);
-        Task DeleteAsync(int id);
+        Task<IResult> AddAsync(CreateInstructorDto dto);
+        Task<IResult> UpdateAsync(UpdateInstructorDto dto);
+        Task<IResult> DeleteAsync(int id);
     }
 }

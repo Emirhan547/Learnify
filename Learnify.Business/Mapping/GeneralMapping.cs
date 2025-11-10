@@ -49,7 +49,7 @@ namespace Learnify.Business.MappingProfiles
 
             // 📕 LESSON MAPPINGS
             CreateMap<Lesson, ResultLessonDto>()
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : string.Empty))
+                .ForMember(dest => dest.CourseTitle, opt => opt.MapFrom(src => src.Course != null ? src.Course.Title : string.Empty))
                 .ReverseMap();
 
             CreateMap<CreateLessonDto, Lesson>().ReverseMap();

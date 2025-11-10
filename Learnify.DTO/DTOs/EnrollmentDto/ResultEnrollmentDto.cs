@@ -1,4 +1,5 @@
 ﻿using Learnify.DTO.DTOs.CourseDto;
+using Learnify.Entity.Enums;
 using System;
 
 namespace Learnify.DTO.DTOs.EnrollmentDto
@@ -6,18 +7,21 @@ namespace Learnify.DTO.DTOs.EnrollmentDto
     public class ResultEnrollmentDto
     {
         public int Id { get; set; }
+        public string StudentName { get; set; } = "";
+        public string CourseTitle { get; set; } = "";
+        public string InstructorName { get; set; } = "";
 
-        public string StudentName { get; set; } = null!;
-        public string CourseTitle { get; set; } = null!;
-        public string InstructorName { get; set; } = null!;
-        public int StudentId { get; set; }   // 👈 eklendi
+        public int StudentId { get; set; }
         public int CourseId { get; set; }
-        // ✅ Tarih ve durum alanları eklendi
+
         public DateTime EnrolledDate { get; set; }
-        public bool IsActive { get; set; }
+        public EnrollmentStatus Status { get; set; }
+
         public int TotalLessons { get; set; }
         public int CompletedLessons { get; set; }
-        public ResultCourseDto Course { get; set; }
 
+        // ❗ Sadece özel durumlarda doldurulacak
+        public ResultCourseDto? Course { get; set; }
+        public bool IsActive { get; set; }
     }
 }

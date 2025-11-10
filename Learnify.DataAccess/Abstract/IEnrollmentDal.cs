@@ -1,7 +1,5 @@
 ﻿using Learnify.Entity.Concrete;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Learnify.DataAccess.Abstract
 {
@@ -9,7 +7,6 @@ namespace Learnify.DataAccess.Abstract
     {
         Task<List<Enrollment>> GetAllWithCourseAndStudentAsync();
         Task<Enrollment?> GetByIdWithCourseAndStudentAsync(int id);
-        Task<List<Enrollment>> GetWhere(Expression<Func<Enrollment, bool>> filter);
-
+        Task<List<Enrollment>> GetWhere(Expression<System.Func<Enrollment, bool>> filter);
     }
 }

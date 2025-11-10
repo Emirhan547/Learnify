@@ -20,45 +20,44 @@ namespace Learnify.UI.Controllers
             _lessonProgressService = lessonProgressService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index(int courseId)
         {
             var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            // Kursa kayıtlı mı kontrol
-            var isEnrolled = await _enrollmentService.IsStudentEnrolledAsync(courseId, studentId);
-            if (!isEnrolled)
+            var enrollCheck = await _enrollmentService.IsStudentEnrolledAsync(courseId, studentId);
+            if (enrollCheck?.Success != true)
             {
                 TempData["Error"] = "Bu kursa erişiminiz yok!";
                 return RedirectToAction("Index", "Course");
             }
 
             var lessons = await _lessonService.GetLessonsByCourseIdAsync(courseId);
-            ViewBag.CourseId = courseId;
-
-            return View(lessons);
+            return View(lessons.Data ?? new List<object>());
         }
+
+        [HttpGet]
         public async Task<IActionResult> Watch(int lessonId)
         {
             var lesson = await _lessonService.GetByIdAsync(lessonId);
-            if (lesson == null) return RedirectToAction("Index", "Home");
+            if (lesson?.Success != true || lesson.Data == null)
+                return RedirectToAction("Index", "Home");
 
             var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var enrollCheck = await _enrollmentService.IsStudentEnrolledAsync(lesson.Data.CourseId, studentId);
 
-            // öğrenci bu derse ait kursa kayıtlı mı?
-            var isEnrolled = await _enrollmentService.IsStudentEnrolledAsync(lesson.CourseId, studentId);
-            if (!isEnrolled)
+            if (enrollCheck?.Success != true)
             {
                 TempData["Error"] = "Bu derse erişim izniniz yok!";
                 return RedirectToAction("Index", "Course");
             }
 
-            // Tüm dersler
-            var lessons = await _lessonService.GetLessonsByCourseIdAsync(lesson.CourseId);
-            ViewBag.Lessons = lessons;
+            var lessons = await _lessonService.GetLessonsByCourseIdAsync(lesson.Data.CourseId);
+            ViewBag.Lessons = lessons.Data;
 
-            return View(lesson);
+            return View(lesson.Data);
         }
-        [Authorize(Roles = "Student")]
+
         [HttpPost]
         public async Task<IActionResult> CompleteLesson(int lessonId)
         {
@@ -73,12 +72,7 @@ namespace Learnify.UI.Controllers
 
             TempData["Success"] = "Dersi tamamladınız 🎉";
 
-            // dersin kursunu çek
-            var lesson = await _lessonService.GetByIdAsync(lessonId);
-
             return RedirectToAction("Watch", new { lessonId });
         }
-
-
     }
 }

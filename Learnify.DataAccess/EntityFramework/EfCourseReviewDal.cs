@@ -13,7 +13,7 @@ namespace Learnify.DataAccess.EntityFramework
 
         public async Task<List<CourseReview>> GetCourseReviewsAsync(int courseId)
         {
-            return await _context.CourseReviews
+            return await Query()
                 .Include(x => x.Student)
                 .Where(x => x.CourseId == courseId)
                 .OrderByDescending(x => x.Id)

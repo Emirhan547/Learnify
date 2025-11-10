@@ -2,6 +2,7 @@
 using Learnify.Business.MappingProfiles;
 using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
+using Learnify.DataAccess.Extensions;
 using Learnify.DataAccess.Repositories;
 using Learnify.DataAccess.Seeds;
 using Learnify.Entity.Concrete;
@@ -24,6 +25,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole<int>>()
 // ✅ Servisler
 builder.Services.AddBusinessLayerServices();
 builder.Services.AddAutoMapper(typeof(GeneralMapping));
+builder.Services.AddDataAccess(builder.Configuration);
+
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 

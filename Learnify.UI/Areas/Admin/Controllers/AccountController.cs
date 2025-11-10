@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Learnify.DTO.DTOs.AccountDto;
+﻿using Learnify.DTO.DTOs.AccountDto;
 using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -9,106 +8,68 @@ using System.Threading.Tasks;
 namespace Learnify.UI.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [AllowAnonymous]
     public class AccountController : Controller
     {
-        private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
-        private readonly IMapper _mapper;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole<int>> _roleManager;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper)
+        public AccountController(
+            SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager,
+            RoleManager<IdentityRole<int>> roleManager)
         {
-            _userManager = userManager;
             _signInManager = signInManager;
-            _mapper = mapper;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        // 🧩 REGISTER
-        [HttpGet, AllowAnonymous]
-        public IActionResult Register() =>
-            User.Identity?.IsAuthenticated == true
-                ? RedirectToAction("Index", "Dashboard")
-                : View();
-
-        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        // 🔑 Giriş sayfası
+        [HttpGet]
+        public IActionResult Login()
         {
-            if (!ModelState.IsValid)
-                return View(dto);
-
-            var user = _mapper.Map<AppUser>(dto);
-            var result = await _userManager.CreateAsync(user, dto.Password);
-
-            if (!result.Succeeded)
-                return ViewWithErrors(result, dto);
-
-            await _userManager.AddToRoleAsync(user, "Admin");
-            return RedirectToAction(nameof(Login));
+            return View();
         }
 
-        // 🔐 LOGIN
-        [HttpGet, AllowAnonymous]
-        public IActionResult Login() =>
-            User.Identity?.IsAuthenticated == true
-                ? RedirectToAction("Index", "Dashboard")
-                : View();
-
-        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+        // 🔓 Giriş işlemi
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginDto dto)
         {
             if (!ModelState.IsValid)
                 return View(dto);
 
-            var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, dto.RememberMe, false);
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Kullanıcı bulunamadı.");
+                return View(dto);
+            }
 
-            if (!result.Succeeded)
-                return ViewWithMessage("Geçersiz e-posta veya şifre.", dto);
+            // Kullanıcının Admin rolünde olup olmadığını kontrol et
+            if (!await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                ModelState.AddModelError("", "Yalnızca yöneticiler giriş yapabilir.");
+                return View(dto);
+            }
 
-            return RedirectToAction("Index", "Dashboard");
+            var result = await _signInManager.PasswordSignInAsync(user, dto.Password, dto.RememberMe, false);
+
+            if (result.Succeeded)
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+
+            ModelState.AddModelError("", "Geçersiz e-posta veya şifre.");
+            return View(dto);
         }
 
-        // 🚪 LOGOUT
-        [Authorize]
+        // 🚪 Çıkış işlemi
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction(nameof(Login));
-        }
-
-        // 🔑 CHANGE PASSWORD
-        [Authorize, HttpGet]
-        public IActionResult ChangePassword() => View();
-
-        [Authorize, HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
-        {
-            if (!ModelState.IsValid)
-                return View(dto);
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction(nameof(Login));
-
-            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
-            if (!result.Succeeded)
-                return ViewWithErrors(result, dto);
-
-            await _signInManager.RefreshSignInAsync(user);
-            ViewBag.Success = "Şifre başarıyla güncellendi.";
-            return View();
-        }
-
-        // 🧱 Ortak Hata Yönetimi Yardımcıları
-        private ViewResult ViewWithErrors(IdentityResult result, object model)
-        {
-            foreach (var error in result.Errors)
-                ModelState.AddModelError("", error.Description);
-            return View(model);
-        }
-
-        private ViewResult ViewWithMessage(string message, object model)
-        {
-            ModelState.AddModelError("", message);
-            return View(model);
+            return RedirectToAction("Login", "Account", new { area = "Admin" });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Learnify.Business.Abstract;
+﻿
 using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,65 +14,71 @@ namespace Learnify.UI.Areas.Admin.Controllers
     public class StudentController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
-        private readonly IEnrollmentService _enrollmentService;
 
-        public StudentController(UserManager<AppUser> userManager, IEnrollmentService enrollmentService)
+        public StudentController(UserManager<AppUser> userManager)
         {
             _userManager = userManager;
-            _enrollmentService = enrollmentService;
         }
 
+        // 📋 Tüm öğrencileri listele
         [HttpGet]
-        public IActionResult Index(string? search, string? status)
+        public async Task<IActionResult> Index()
         {
-            var query = _userManager.Users.Where(u => u.Profession == "Student");
-
-            if (!string.IsNullOrEmpty(search))
-                query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-
-            if (status == "active")
-                query = query.Where(u => u.IsActive);
-            else if (status == "passive")
-                query = query.Where(u => !u.IsActive);
-
-            var students = query.ToList();
-
-            ViewBag.Search = search;
-            ViewBag.Status = status;
+            var students = await _userManager.Users
+                .Where(u => u.IsActive && u.Profession == "Student")
+                .ToListAsync();
 
             return View(students);
         }
 
+        // 🔍 Öğrenci detay sayfası
         [HttpGet]
-        public async Task<IActionResult> GetStudentDetail(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var student = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (student == null) return NotFound();
+            var student = await _userManager.FindByIdAsync(id.ToString());
+            if (student == null || student.Profession != "Student")
+                return NotFound();
 
-            var enrollments = await _enrollmentService.GetAllAsync();
-            var enrolledCourses = enrollments
-                .Where(e => e.StudentId == id)
-                .Select(e => e.CourseTitle)
-                .ToList();
-
-            return PartialView("_StudentDetailPartial", new
-            {
-                Student = student,
-                Courses = enrolledCourses
-            });
+            return View(student);
         }
 
+        // ❌ Öğrenciyi pasife al
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ToggleStatus(int id)
+        public async Task<IActionResult> Deactivate(int id)
         {
             var student = await _userManager.FindByIdAsync(id.ToString());
             if (student == null) return NotFound();
 
-            student.IsActive = !student.IsActive;
+            student.IsActive = false;
             await _userManager.UpdateAsync(student);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // 🔄 Öğrenciyi tekrar aktifleştir
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Activate(int id)
+        {
+            var student = await _userManager.FindByIdAsync(id.ToString());
+            if (student == null) return NotFound();
+
+            student.IsActive = true;
+            await _userManager.UpdateAsync(student);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // 🧾 Pasif öğrenciler listesi
+        [HttpGet]
+        public async Task<IActionResult> PassiveList()
+        {
+            var students = await _userManager.Users
+                .Where(u => !u.IsActive && u.Profession == "Student")
+                .ToListAsync();
+
+            return View("Index", students);
         }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using Learnify.Business.Abstract;
 using Learnify.DTO.DTOs.NotificationDto;
-using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
@@ -14,75 +11,74 @@ namespace Learnify.UI.Areas.Admin.Controllers
     public class NotificationController : Controller
     {
         private readonly INotificationService _notificationService;
-        private readonly UserManager<AppUser> _userManager;
 
-        public NotificationController(INotificationService notificationService, UserManager<AppUser> userManager)
+        public NotificationController(INotificationService notificationService)
         {
             _notificationService = notificationService;
-            _userManager = userManager;
         }
 
-        private void LoadUsers()
-        {
-            var users = _userManager.Users
-                .Where(u => u.IsActive)
-                .Select(u => new { u.Id, u.FullName })
-                .ToList();
-            ViewBag.Users = new SelectList(users, "Id", "FullName");
-        }
-
+        // 🔔 Tüm bildirimleri listele
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int userId)
         {
-            var notifications = await _notificationService.GetAllAsync();
-            return View(notifications);
+            var result = await _notificationService.GetAllByUserIdAsync(userId);
+            return View(result.Data);
         }
 
+        // 📬 Okunmamış bildirimleri listele
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Unread(int userId)
         {
-            LoadUsers();
-            return View();
+            var result = await _notificationService.GetUnreadAsync(userId);
+            return View(result.Data);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateNotificationDto dto)
-        {
-            if (!ModelState.IsValid)
-            {
-                LoadUsers();
-                return View(dto);
-            }
-
-            await _notificationService.AddAsync(dto);
-            return RedirectToAction(nameof(Index));
-        }
-        [HttpGet]
-        public async Task<IActionResult> GetUnreadPartial()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return PartialView("_NotificationDropdownPartial", new List<ResultNotificationDto>());
-
-            var notifications = await _notificationService.GetUnreadAsync(user.Id);
-            return PartialView("_NotificationDropdownPartial", notifications.Take(5).ToList());
-        }
+        // ✅ Bildirimi okundu olarak işaretle
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int id)
         {
             await _notificationService.MarkAsReadAsync(id);
-            return Ok();
+            return RedirectToAction(nameof(Index));
         }
 
+        // ➕ Yeni bildirim oluşturma sayfası
         [HttpGet]
-        public async Task<IActionResult> Details(int id)
-        {
-            var notif = await _notificationService.GetByIdAsync(id);
-            if (notif == null) return NotFound();
+        public IActionResult Create() => View();
 
-            await _notificationService.MarkAsReadAsync(id);
-            return View(notif);
+        // ✅ Yeni bildirim oluştur
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateNotificationDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            await _notificationService.AddAsync(dto);
+            return RedirectToAction(nameof(Index), new { userId = dto.UserId });
         }
 
+        // ✏️ Bildirim düzenleme formu
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var result = await _notificationService.GetByIdAsync(id);
+            if (!result.Success || result.Data == null)
+                return NotFound();
+
+            return View(result.Data);
+        }
+
+        // ✅ Bildirim güncelle
+        [HttpPost]
+        public async Task<IActionResult> Update(UpdateNotificationDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            await _notificationService.UpdateAsync(dto);
+            return RedirectToAction(nameof(Index), new { userId = dto.UserId });
+        }
+
+        // ❌ Bildirimi sil
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Learnify.Business.Abstract;
+using Learnify.Business.Utilities.Results;
 using Learnify.DataAccess.Abstract;
 using Learnify.DTO.DTOs.CourseDto;
 using Learnify.Entity.Concrete;
@@ -19,67 +20,81 @@ namespace Learnify.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task AddAsync(CreateCourseDto dto)
+        public async Task<IResult> AddAsync(CreateCourseDto dto)
         {
             var entity = _mapper.Map<Course>(dto);
             await _unitOfWork.Courses.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
+            return new SuccessResult("Kurs başarıyla oluşturuldu.");
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
             var course = await _unitOfWork.Courses.GetByIdAsync(id);
-            if (course == null) return;
+            if (course == null)
+                return new ErrorResult("Kurs bulunamadı.");
 
             _unitOfWork.Courses.Delete(course);
             await _unitOfWork.SaveChangesAsync();
+            return new SuccessResult("Kurs silindi.");
         }
 
-        public async Task<List<ResultCourseDto>> GetAllAsync()
+        public async Task<IDataResult<List<ResultCourseDto>>> GetAllAsync()
         {
             var values = await _unitOfWork.Courses.GetAllAsync();
-            return _mapper.Map<List<ResultCourseDto>>(values);
+            var mapped = _mapper.Map<List<ResultCourseDto>>(values);
+            return new SuccessDataResult<List<ResultCourseDto>>(mapped);
         }
 
-        public async Task<ResultCourseDto?> GetByIdAsync(int id)
+        public async Task<IDataResult<ResultCourseDto>> GetByIdAsync(int id)
         {
             var course = await _unitOfWork.Courses.GetByIdAsync(id);
-            return _mapper.Map<ResultCourseDto?>(course);
+            if (course == null)
+                return new ErrorDataResult<ResultCourseDto>("Kurs bulunamadı.");
+
+            return new SuccessDataResult<ResultCourseDto>(_mapper.Map<ResultCourseDto>(course));
         }
 
-        public async Task UpdateAsync(UpdateCourseDto dto)
+        public async Task<IResult> UpdateAsync(UpdateCourseDto dto)
         {
             var course = await _unitOfWork.Courses.GetByIdAsync(dto.Id);
-            if (course == null) return;
+            if (course == null)
+                return new ErrorResult("Kurs bulunamadı.");
 
             _mapper.Map(dto, course);
             _unitOfWork.Courses.Update(course);
             await _unitOfWork.SaveChangesAsync();
+            return new SuccessResult("Kurs güncellendi.");
         }
 
-        public async Task<List<ResultCourseDto>> GetCoursesWithInstructorAsync()
+        public async Task<IDataResult<List<ResultCourseDto>>> GetCoursesWithInstructorAsync()
         {
-            var values = await _unitOfWork.Courses.GetCoursesWithInstructorAsync();
-            return _mapper.Map<List<ResultCourseDto>>(values);
+            var list = await _unitOfWork.Courses.GetCoursesWithInstructorAsync();
+            return new SuccessDataResult<List<ResultCourseDto>>(_mapper.Map<List<ResultCourseDto>>(list));
         }
 
-        public async Task<ResultCourseDto?> GetCourseDetailsAsync(int courseId)
+        public async Task<IDataResult<ResultCourseDto>> GetCourseDetailsAsync(int courseId)
         {
-            var course = await _unitOfWork.Courses.GetCourseDetailsAsync(courseId);
-            return _mapper.Map<ResultCourseDto?>(course);
+            var entity = await _unitOfWork.Courses.GetCourseDetailsAsync(courseId);
+            if (entity == null)
+                return new ErrorDataResult<ResultCourseDto>("Kurs bulunamadı.");
+
+            return new SuccessDataResult<ResultCourseDto>(_mapper.Map<ResultCourseDto>(entity));
         }
 
-        public async Task<List<ResultCourseDto>> GetCoursesByCategoryIdAsync(int categoryId)
+        public async Task<IDataResult<List<ResultCourseDto>>> GetCoursesByCategoryIdAsync(int categoryId)
         {
-            var values = await _unitOfWork.Courses.GetCoursesByCategoryIdAsync(categoryId);
-            return _mapper.Map<List<ResultCourseDto>>(values);
+            var list = await _unitOfWork.Courses.GetCoursesByCategoryIdAsync(categoryId);
+            return new SuccessDataResult<List<ResultCourseDto>>(_mapper.Map<List<ResultCourseDto>>(list));
         }
 
-        public async Task<UpdateCourseDto?> GetForUpdateAsync(int id)
+        public async Task<IDataResult<UpdateCourseDto>> GetForUpdateAsync(int id)
         {
-            var course = await _unitOfWork.Courses.GetByIdAsync(id);
-            return _mapper.Map<UpdateCourseDto?>(course);
-        }
+            var entity = await _unitOfWork.Courses.GetByIdAsync(id);
+            if (entity == null)
+                return new ErrorDataResult<UpdateCourseDto>("Kurs bulunamadı.");
 
+            return new SuccessDataResult<UpdateCourseDto>(_mapper.Map<UpdateCourseDto>(entity));
+        }
     }
 }

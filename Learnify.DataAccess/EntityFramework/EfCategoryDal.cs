@@ -1,44 +1,36 @@
 ﻿using Learnify.DataAccess.Abstract;
 using Learnify.DataAccess.Context;
+using Learnify.DataAccess.Repositories;
 using Learnify.Entity.Concrete;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Learnify.DataAccess.Repositories
+public class EfCategoryDal : GenericRepository<Category>, ICategoryDal
 {
-    public class EfCategoryDal : GenericRepository<Category>, ICategoryDal
+    public EfCategoryDal(LearnifyContext context) : base(context) { }
+
+    public async Task<List<Category>> GetActiveCategoriesAsync()
     {
-        private readonly LearnifyContext _context;
+        return await Query()
+            .Where(c => c.IsActive)
+            .ToListAsync();
+    }
 
-        public EfCategoryDal(LearnifyContext context) : base(context)
-        {
-            _context = context;
-        }
+    public async Task<Category?> GetCategoryWithCoursesAsync(int categoryId)
+    {
+        return await Query()
+            .Where(c => c.Id == categoryId)
+            .Include(c => c.Courses)
+            .ThenInclude(c => c.Instructor)
+            .FirstOrDefaultAsync();
+    }
 
-        public async Task<List<Category>> GetActiveCategoriesAsync()
-        {
-            return await _context.Categories
-                .Where(c => c.IsActive)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-
-        public async Task<List<Category>> GetAllWithCourseCountAsync()
-        {
-            return await _context.Categories
-                .Include(x => x.Courses)
-                .ToListAsync();
-        }
-
-        public async Task<Category?> GetCategoryWithCoursesAsync(int categoryId)
-        {
-            return await _context.Categories
-                .Include(c => c.Courses)
-                    .ThenInclude(crs => crs.Instructor)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == categoryId);
-        }
+    public async Task<List<Category>> GetAllWithCourseCountAsync()
+    {
+        return await Query(true)
+            .Include(c => c.Courses)
+            .ToListAsync();
     }
 }

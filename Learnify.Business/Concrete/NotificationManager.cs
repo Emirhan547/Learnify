@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Learnify.Business.Abstract;
+using Learnify.Business.Utilities.Results;
 using Learnify.DataAccess.Abstract;
 using Learnify.DTO.DTOs.NotificationDto;
 using Learnify.Entity.Concrete;
@@ -20,65 +21,84 @@ namespace Learnify.Business.Concrete
             _mapper = mapper;
         }
 
-        public async Task AddAsync(CreateNotificationDto dto)
+        public async Task<IResult> AddAsync(CreateNotificationDto dto)
         {
             var entity = _mapper.Map<Notification>(dto);
             await _unitOfWork.Notifications.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
+            return new SuccessResult("Bildirim başarıyla eklendi.");
         }
 
-        public async Task DeleteAsync(int id)
-        {
-            var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
-            if (notification == null) return;
-
-            _unitOfWork.Notifications.Delete(notification);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        public async Task<List<ResultNotificationDto>> GetAllAsync()
-        {
-            var values = await _unitOfWork.Notifications.GetAllAsync();
-            return _mapper.Map<List<ResultNotificationDto>>(values.OrderByDescending(x => x.CreatedDate).ToList());
-        }
-
-        public async Task<ResultNotificationDto?> GetByIdAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
             var entity = await _unitOfWork.Notifications.GetByIdAsync(id);
-            return _mapper.Map<ResultNotificationDto?>(entity);
-        }
+            if (entity == null)
+                return new ErrorResult("Bildirim bulunamadı.");
 
-        public async Task UpdateAsync(UpdateNotificationDto dto)
-        {
-            var notification = await _unitOfWork.Notifications.GetByIdAsync(dto.Id);
-            if (notification == null) return;
-
-            _mapper.Map(dto, notification);
-            _unitOfWork.Notifications.Update(notification);
+            _unitOfWork.Notifications.Delete(entity);
             await _unitOfWork.SaveChangesAsync();
+            return new SuccessResult("Bildirim silindi.");
         }
 
-        public async Task<List<ResultNotificationDto>> GetUnreadAsync(int userId)
+        public async Task<IDataResult<List<ResultNotificationDto>>> GetAllAsync()
         {
-            var unread = await _unitOfWork.Notifications.GetUnreadAsync(userId);
-            return _mapper.Map<List<ResultNotificationDto>>(unread);
+            var values = await _unitOfWork.Notifications.GetAllAsync();
+            var mapped = values.OrderByDescending(x => x.CreatedDate).ToList();
+            return new SuccessDataResult<List<ResultNotificationDto>>(
+                _mapper.Map<List<ResultNotificationDto>>(mapped)
+            );
         }
 
-        public async Task MarkAsReadAsync(int id)
+        public async Task<IDataResult<ResultNotificationDto>> GetByIdAsync(int id)
         {
-            var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
-            if (notification == null) return;
+            var entity = await _unitOfWork.Notifications.GetByIdAsync(id);
+            if (entity == null)
+                return new ErrorDataResult<ResultNotificationDto>("Bildirim bulunamadı.");
 
-            notification.IsRead = true;
-            _unitOfWork.Notifications.Update(notification);
+            return new SuccessDataResult<ResultNotificationDto>(_mapper.Map<ResultNotificationDto>(entity));
+        }
+
+        public async Task<IResult> UpdateAsync(UpdateNotificationDto dto)
+        {
+            var entity = await _unitOfWork.Notifications.GetByIdAsync(dto.Id);
+            if (entity == null)
+                return new ErrorResult("Bildirim bulunamadı.");
+
+            _mapper.Map(dto, entity);
+            _unitOfWork.Notifications.Update(entity);
             await _unitOfWork.SaveChangesAsync();
+
+            return new SuccessResult("Bildirim güncellendi.");
         }
 
-        public async Task<List<ResultNotificationDto>> GetAllByUserIdAsync(int userId)
+        public async Task<IDataResult<List<ResultNotificationDto>>> GetUnreadAsync(int userId)
         {
-            var values = await _unitOfWork.Notifications.GetAllAsync(x => x.UserId == userId);
-            return _mapper.Map<List<ResultNotificationDto>>(values);
+            var values = await _unitOfWork.Notifications.GetUnreadAsync(userId);
+            return new SuccessDataResult<List<ResultNotificationDto>>(
+                _mapper.Map<List<ResultNotificationDto>>(values)
+            );
         }
 
+        public async Task<IResult> MarkAsReadAsync(int id)
+        {
+            var entity = await _unitOfWork.Notifications.GetByIdAsync(id);
+            if (entity == null)
+                return new ErrorResult("Bildirim bulunamadı.");
+
+            entity.IsRead = true;
+
+            _unitOfWork.Notifications.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new SuccessResult("Bildirim okundu olarak işaretlendi.");
+        }
+
+        public async Task<IDataResult<List<ResultNotificationDto>>> GetAllByUserIdAsync(int userId)
+        {
+            var values = await _unitOfWork.Notifications.GetAllAsync(n => n.UserId == userId);
+            return new SuccessDataResult<List<ResultNotificationDto>>(
+                _mapper.Map<List<ResultNotificationDto>>(values)
+            );
+        }
     }
 }

@@ -11,5 +11,6 @@ namespace Learnify.DTO.DTOs.LessonProgressDto
         public int LessonId { get; set; }
         public int StudentId { get; set; }
         public bool IsCompleted { get; set; } = true;
+        public object CourseId { get; set; }
     }
 }

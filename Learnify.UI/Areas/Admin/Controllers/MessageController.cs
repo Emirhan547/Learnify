@@ -1,12 +1,7 @@
-﻿using AutoMapper;
-using Learnify.Business.Abstract;
+﻿using Learnify.Business.Abstract;
 using Learnify.DTO.DTOs.MessageDto;
-using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
@@ -16,122 +11,84 @@ namespace Learnify.UI.Areas.Admin.Controllers
     public class MessageController : Controller
     {
         private readonly IMessageService _messageService;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IMapper _mapper;
 
-        public MessageController(IMessageService messageService, UserManager<AppUser> userManager, IMapper mapper)
+        public MessageController(IMessageService messageService)
         {
             _messageService = messageService;
-            _userManager = userManager;
-            _mapper = mapper;
         }
 
-        private async Task<int> GetCurrentUserIdAsync()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            return user?.Id ?? 0;
-        }
-
-        private void LoadReceiversDropdown()
-        {
-            ViewBag.Users = new SelectList(_userManager.Users.Where(u => u.IsActive).ToList(), "Id", "FullName");
-        }
-
-        // 📥 Gelen Kutusu
+        // 📥 Gelen kutusu
         [HttpGet]
-        public async Task<IActionResult> Inbox()
+        public async Task<IActionResult> Inbox(int userId)
         {
-            var userId = await GetCurrentUserIdAsync();
-            var messages = await _messageService.GetInboxAsync(userId);
-            return View(messages);
+            var result = await _messageService.GetInboxAsync(userId);
+            return View(result.Data);
         }
 
-        // 📤 Gönderilenler
+        // 📤 Giden kutusu
         [HttpGet]
-        public async Task<IActionResult> Sent()
+        public async Task<IActionResult> Sendbox(int userId)
         {
-            var userId = await GetCurrentUserIdAsync();
-            var messages = await _messageService.GetSentAsync(userId);
-            return View(messages);
+            var result = await _messageService.GetSentAsync(userId);
+            return View(result.Data);
         }
 
         // 📝 Taslaklar
         [HttpGet]
-        public async Task<IActionResult> Draft()
+        public async Task<IActionResult> Drafts(int userId)
         {
-            var userId = await GetCurrentUserIdAsync();
-            var messages = await _messageService.GetDraftsAsync(userId);
-            return View(messages);
+            var result = await _messageService.GetDraftsAsync(userId);
+            return View(result.Data);
         }
 
-        // 🗑️ Silinenler
+        // 🚮 Çöp kutusu
         [HttpGet]
-        public async Task<IActionResult> Trash()
+        public async Task<IActionResult> Trash(int userId)
         {
-            var userId = await GetCurrentUserIdAsync();
-            var messages = await _messageService.GetDeletedAsync(userId);
-            return View(messages);
+            var result = await _messageService.GetDeletedAsync(userId);
+            return View(result.Data);
         }
 
-        // 🚫 Spam
+        // 🚫 Spam kutusu
         [HttpGet]
-        public async Task<IActionResult> Spam()
+        public async Task<IActionResult> Spam(int userId)
         {
-            var userId = await GetCurrentUserIdAsync();
-            var messages = await _messageService.GetSpamAsync(userId);
-            return View(messages);
+            var result = await _messageService.GetSpamAsync(userId);
+            return View(result.Data);
         }
 
-        // 💌 Yeni Mesaj
+        // ✉️ Yeni mesaj oluşturma sayfası
         [HttpGet]
-        public IActionResult NewMessage()
-        {
-            LoadReceiversDropdown();
-            return View();
-        }
+        public IActionResult Create() => View();
 
+        // ✅ Yeni mesaj gönder
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> NewMessage(CreateMessageDto dto, string actionType)
+        public async Task<IActionResult> Create(CreateMessageDto dto)
         {
-            var userId = await GetCurrentUserIdAsync();
-            dto.SenderId = userId;
-
-            if (actionType == "draft")
-                dto.IsDraft = true;
-
             if (!ModelState.IsValid)
-            {
-                LoadReceiversDropdown();
                 return View(dto);
-            }
 
             await _messageService.AddAsync(dto);
-
-            if (dto.IsDraft)
-                return RedirectToAction(nameof(Draft));
-
-            return RedirectToAction(nameof(Sent));
+            return RedirectToAction(nameof(Sendbox), new { userId = dto.SenderId });
         }
 
-        // 📄 Detay Görüntüleme
+        // 📄 Mesaj detay sayfası
         [HttpGet]
-        public async Task<IActionResult> Detail(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var message = await _messageService.GetByIdAsync(id);
-            if (message == null)
+            var result = await _messageService.GetByIdAsync(id);
+            if (!result.Success || result.Data == null)
                 return NotFound();
 
-            return View(message);
+            return View(result.Data);
         }
 
-        // ❌ Silme (soft delete)
+        // 🗑️ Mesaj sil
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             await _messageService.DeleteAsync(id);
-            return RedirectToAction(nameof(Inbox));
+            return RedirectToAction(nameof(Trash));
         }
     }
 }

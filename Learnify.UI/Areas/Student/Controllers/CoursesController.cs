@@ -29,69 +29,71 @@ namespace Learnify.UI.Areas.Student.Controllers
             _userManager = userManager;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _enrollmentService.GetAllWithCourseAndStudentAsync();
 
-            var enrollments = await _enrollmentService.GetAllWithCourseAndStudentAsync();
-            var myCourses = enrollments.Where(x => x.StudentId == studentId).ToList();
+            var myCourses = result.Data?
+                .Where(x => x.StudentId == studentId)
+                .ToList() ?? new List<Learnify.DTO.DTOs.EnrollmentDto.ResultEnrollmentDto>();
 
             return View(myCourses);
         }
 
+        [HttpGet]
         public async Task<IActionResult> MyCourses()
         {
             var user = await _userManager.GetUserAsync(User);
-            var enrollments = await _enrollmentService.GetAllWithCourseAndStudentAsync();
+            var result = await _enrollmentService.GetAllWithCourseAndStudentAsync();
 
-            var myCourses = enrollments
+            var myCourses = result.Data?
                 .Where(x => x.StudentId == user.Id)
                 .Select(x => new
                 {
-                    Course = x.Course,
-                    CompletedLessons = x.CompletedLessons,
-                    TotalLessons = x.TotalLessons
-                }).ToList();
+                    x.Course,
+                    x.CompletedLessons,
+                    x.TotalLessons
+                })
+                .ToList();
 
             return View(myCourses);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
-            var course = await _courseService.GetByIdAsync(id);
-            if (course == null) return RedirectToAction("Index");
+            var courseResult = await _courseService.GetByIdAsync(id);
+            if (!courseResult.Success || courseResult.Data == null)
+                return RedirectToAction(nameof(Index));
 
-            ViewBag.IsEnrolled = false;
+            var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var isEnrolled = await _enrollmentService.IsStudentEnrolledAsync(id, studentId);
 
-            if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                ViewBag.IsEnrolled = await _enrollmentService.IsStudentEnrolledAsync(id, studentId);
-            }
+            var reviewResult = await _courseReviewService.GetAllAsync();
+            var courseReviews = reviewResult.Data?
+                .Where(r => r.CourseId == id)
+                .ToList() ?? new List<ResultCourseReviewDto>();
 
-            // ✅ Kurs yorumlarını getir
-            ViewBag.Reviews = await _courseReviewService.GetCourseReviewsAsync(id);
+            ViewBag.IsEnrolled = isEnrolled;
+            ViewBag.Reviews = courseReviews;
 
-            return View(course);
+            return View(courseResult.Data);
         }
 
         [HttpPost]
-        [Authorize(Roles = "Student")]
         public async Task<IActionResult> AddReview(CreateCourseReviewDto dto)
         {
             var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var isEnrolled = await _enrollmentService.IsStudentEnrolledAsync(dto.CourseId, studentId);
-            if (!isEnrolled)
-            {
-                TempData["Error"] = "Bu kursa kayıtlı değilsiniz, yorum yapamazsınız.";
-                return RedirectToAction("Detail", new { id = dto.CourseId });
-            }
+            if (isEnrolled == null || !isEnrolled.Success)
+                return Forbid("Bu kursa kayıtlı değilsiniz, yorum yapamazsınız.");
 
-            await _courseReviewService.AddReviewAsync(studentId, dto);
-
-            TempData["Success"] = "Yorumunuz başarıyla kaydedildi!";
-            return RedirectToAction("Detail", new { id = dto.CourseId });
+            await _courseReviewService.AddAsync(dto);
+            return RedirectToAction(nameof(Detail), new { id = dto.CourseId });
         }
+
     }
 }

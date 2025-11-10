@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Learnify.UI.Controllers
 {
@@ -23,59 +21,64 @@ namespace Learnify.UI.Controllers
         }
 
         // 🔹 Tüm kurslar
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var courses = await _courseService.GetAllAsync();
-            var activeCourses = courses.Where(x => x.IsActive).ToList();
+            var result = await _courseService.GetAllAsync();
+            if (result?.Success != true || result.Data == null)
+                return View(new List<Entity.Concrete.Course>());
+
+            var activeCourses = result.Data.Where(x => x.IsActive).ToList();
             return View(activeCourses);
         }
 
         // 🔹 Kurs Detay
+        [HttpGet]
         public async Task<IActionResult> Detail(int id)
         {
-            var course = await _courseService.GetByIdAsync(id);
-            if (course == null) return RedirectToAction("Index");
+            var result = await _courseService.GetByIdAsync(id);
+            if (result?.Success != true || result.Data == null)
+                return RedirectToAction(nameof(Index));
 
-            ViewBag.IsEnrolled = false;
+            bool isEnrolled = false;
 
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            if (User.Identity?.IsAuthenticated == true)
             {
                 var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                ViewBag.IsEnrolled = await _enrollmentService.IsStudentEnrolledAsync(id, studentId);
+                var enrollResult = await _enrollmentService.IsStudentEnrolledAsync(id, studentId);
+                isEnrolled = enrollResult != null && enrollResult.Success;
             }
 
-            return View(course);
+            var model = result.Data;
+            model.IsUserEnrolled = isEnrolled;
+
+            return View(model);
         }
 
         // 🔹 Kursa Katıl (POST)
         [Authorize(Roles = "Student")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Enroll(int courseId)
         {
             var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var enrollResult = await _enrollmentService.EnrollStudentAsync(courseId, studentId);
 
-            var success = await _enrollmentService.EnrollStudentAsync(courseId, studentId);
-
-            if (!success)
-                TempData["Error"] = "Bu kursa zaten kayıt oldunuz.";
-            else
-                TempData["Success"] = "Kursa başarıyla kaydoldunuz!";
-
-            return RedirectToAction("Detail", new { id = courseId });
+            TempData[enrollResult.Success ? "Success" : "Error"] = enrollResult.Message;
+            return RedirectToAction(nameof(Detail), new { id = courseId });
         }
 
         // 🔹 Öğrencinin kurs listesi
         [Authorize(Roles = "Student")]
+        [HttpGet]
         public async Task<IActionResult> MyCourses()
         {
             var user = await _userManager.GetUserAsync(User);
-            var enrollments = await _enrollmentService.GetAllWithCourseAndStudentAsync();
+            var result = await _enrollmentService.GetAllWithCourseAndStudentAsync();
 
-            var myCourses = enrollments
+            var myCourses = result.Data?
                 .Where(x => x.StudentId == user.Id)
                 .Select(x => x.Course)
-                .ToList();
+                .ToList() ?? new List<Course>();
 
             return View(myCourses);
         }

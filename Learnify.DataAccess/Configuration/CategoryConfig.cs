@@ -8,14 +8,15 @@ namespace Learnify.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
-            builder.HasKey(x => x.Id);
-
             builder.Property(x => x.Name)
                    .IsRequired()
                    .HasMaxLength(50);
 
-            builder.Property(x => x.IsActive)
-                   .HasDefaultValue(true);
+            builder.Property(x => x.Description)
+                   .HasMaxLength(500)
+                   .IsRequired(false);
+
+            builder.HasIndex(x => x.Name).IsUnique();
 
             builder.HasMany(x => x.Courses)
                    .WithOne(x => x.Category)

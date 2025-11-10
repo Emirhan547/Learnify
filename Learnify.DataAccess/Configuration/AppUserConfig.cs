@@ -14,11 +14,13 @@ namespace Learnify.DataAccess.Configurations
             builder.Property(x => x.Profession)
                    .HasMaxLength(100);
 
-            builder.Property(x => x.IsActive)
-                   .HasDefaultValue(true);
+            builder.Property(x => x.ProfileImage)
+                   .HasMaxLength(300)
+                   .IsRequired(false);
 
-            builder.Property(x => x.CreatedDate)
-                   .HasDefaultValueSql("GETDATE()");
+            // Index for login & search ops
+            builder.HasIndex(x => x.Email).IsUnique();
+            builder.HasIndex(x => x.UserName).IsUnique();
         }
     }
 }

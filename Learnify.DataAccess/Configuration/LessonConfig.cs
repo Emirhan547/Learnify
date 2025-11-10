@@ -8,11 +8,9 @@ namespace Learnify.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<Lesson> builder)
         {
-            builder.HasKey(x => x.Id);
-
             builder.Property(x => x.Title)
                    .IsRequired()
-                   .HasMaxLength(100);
+                   .HasMaxLength(150);
 
             builder.Property(x => x.VideoUrl)
                    .IsRequired()

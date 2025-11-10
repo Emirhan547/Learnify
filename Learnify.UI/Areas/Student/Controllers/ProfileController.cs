@@ -19,41 +19,37 @@ namespace Learnify.UI.Areas.Student.Controllers
             _env = env;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
 
-            var model = new UpdateStudentProfileDto
+            return View(new UpdateStudentProfileDto
             {
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email!,
                 ExistingImage = user.ProfileImage
-            };
-
-            return View(model);
+            });
         }
 
         [HttpPost]
         public async Task<IActionResult> Index(UpdateStudentProfileDto model)
         {
             var user = await _userManager.FindByIdAsync(model.Id.ToString());
+            if (user == null)
+                return View(model);
 
-            if (user == null) return View(model);
-
-            // Profil resmi yüklendiyse kayıt et
             if (model.ProfileImage != null)
             {
-                string folder = Path.Combine(_env.WebRootPath, "studentprofiles");
+                var folder = Path.Combine(_env.WebRootPath, "studentprofiles");
                 Directory.CreateDirectory(folder);
 
-                string fileName = Guid.NewGuid() + Path.GetExtension(model.ProfileImage.FileName);
-                string filePath = Path.Combine(folder, fileName);
+                var fileName = Guid.NewGuid() + Path.GetExtension(model.ProfileImage.FileName);
+                var filePath = Path.Combine(folder, fileName);
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.ProfileImage.CopyToAsync(stream);
-                }
+                await using var stream = new FileStream(filePath, FileMode.Create);
+                await model.ProfileImage.CopyToAsync(stream);
 
                 user.ProfileImage = "/studentprofiles/" + fileName;
             }
@@ -61,28 +57,17 @@ namespace Learnify.UI.Areas.Student.Controllers
             user.FullName = model.FullName;
 
             var result = await _userManager.UpdateAsync(user);
-
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                TempData["Success"] = "Profil başarıyla güncellendi ✅";
-                return RedirectToAction("Index");
+                ModelState.AddModelError("", "Profil güncellenemedi!");
+                return View(model);
             }
 
-            TempData["Error"] = "Bir hata oluştu ❌";
-            return View(model);
+            return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
-        public async Task<IActionResult> ChangePassword()
-        {
-            var user = await _userManager.GetUserAsync(User);
-
-            var model = new ChangePasswordDto
-            {
-                UserId = user.Id
-            };
-
-            return View(model);
-        }
+        public IActionResult ChangePassword() => View(new ChangePasswordDto());
 
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
@@ -92,25 +77,18 @@ namespace Learnify.UI.Areas.Student.Controllers
 
             var user = await _userManager.FindByIdAsync(model.UserId.ToString());
             if (user == null)
-            {
-                TempData["Error"] = "Kullanıcı bulunamadı!";
                 return View(model);
-            }
 
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
-
             if (!result.Succeeded)
             {
                 foreach (var err in result.Errors)
                     ModelState.AddModelError("", err.Description);
 
-                TempData["Error"] = "Şifre güncelleme başarısız!";
                 return View(model);
             }
 
-            TempData["Success"] = "Şifreniz başarıyla güncellendi ✅";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
-
     }
 }

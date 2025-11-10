@@ -6,14 +6,14 @@ namespace Learnify.Entity.Concrete
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+
         public decimal Price { get; set; }
         public bool IsPublished { get; set; }
 
-        // ✅ Yeni alanlar
-        public string ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
         public double Rating { get; set; } = 0;
         public int StudentCount { get; set; } = 0;
-        public string Duration { get; set; } 
+        public string Duration { get; set; } = string.Empty;
 
         public int CategoryId { get; set; }
         public Category Category { get; set; } = null!;
@@ -21,7 +21,8 @@ namespace Learnify.Entity.Concrete
         public int InstructorId { get; set; }
         public AppUser Instructor { get; set; } = null!;
 
-        public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
-        public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+        public List<Lesson> Lessons { get; set; } = new();
+        public List<Enrollment> Enrollments { get; set; } = new();
+        public List<CourseReview> Reviews { get; set; } = new();
     }
 }

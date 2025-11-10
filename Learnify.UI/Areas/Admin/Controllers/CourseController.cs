@@ -2,7 +2,6 @@
 using Learnify.DTO.DTOs.CourseDto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
 
 namespace Learnify.UI.Areas.Admin.Controllers
@@ -25,39 +24,33 @@ namespace Learnify.UI.Areas.Admin.Controllers
             _instructorService = instructorService;
         }
 
-        // 🔹 Dropdown verilerini yüklüyoruz
-        private async Task LoadDropdownDataAsync()
-        {
-            var categories = await _categoryService.GetAllAsync();
-            var instructors = await _instructorService.GetAllAsync();
-
-            ViewBag.Categories = new SelectList(categories, "Id", "Name");
-            ViewBag.Instructors = new SelectList(instructors, "Id", "FullName");
-        }
-
-        // 📘 Kurs listesi
+        // 📄 Tüm kursları listele
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var courses = await _courseService.GetCoursesWithInstructorAsync();
-            return View(courses);
+            var result = await _courseService.GetCoursesWithInstructorAsync();
+            return View(result.Data);
         }
 
-        // ➕ Yeni kurs oluşturma (GET)
+        // ➕ Kurs ekleme sayfası
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await LoadDropdownDataAsync();
+            // DropDown verileri (sadece DTO listesi döner)
+            ViewBag.Categories = (await _categoryService.GetAllAsync()).Data;
+            ViewBag.Instructors = (await _instructorService.GetAllAsync()).Data;
+
             return View();
         }
 
-        // ➕ Yeni kurs oluşturma (POST)
-        [HttpPost, ValidateAntiForgeryToken]
+        // ✅ Kurs ekleme işlemi
+        [HttpPost]
         public async Task<IActionResult> Create(CreateCourseDto dto)
         {
             if (!ModelState.IsValid)
             {
-                await LoadDropdownDataAsync();
+                ViewBag.Categories = (await _categoryService.GetAllAsync()).Data;
+                ViewBag.Instructors = (await _instructorService.GetAllAsync()).Data;
                 return View(dto);
             }
 
@@ -65,25 +58,28 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✏️ Kurs güncelleme (GET)
+        // ✏️ Kurs güncelleme sayfası
         [HttpGet]
         public async Task<IActionResult> Update(int id)
         {
-            var dto = await _courseService.GetForUpdateAsync(id);
-            if (dto == null)
+            var result = await _courseService.GetForUpdateAsync(id);
+            if (!result.Success || result.Data == null)
                 return NotFound();
 
-            await LoadDropdownDataAsync();
-            return View(dto);
+            ViewBag.Categories = (await _categoryService.GetAllAsync()).Data;
+            ViewBag.Instructors = (await _instructorService.GetAllAsync()).Data;
+
+            return View(result.Data);
         }
 
-        // ✏️ Kurs güncelleme (POST)
-        [HttpPost, ValidateAntiForgeryToken]
+        // ✅ Kurs güncelleme işlemi
+        [HttpPost]
         public async Task<IActionResult> Update(UpdateCourseDto dto)
         {
             if (!ModelState.IsValid)
             {
-                await LoadDropdownDataAsync();
+                ViewBag.Categories = (await _categoryService.GetAllAsync()).Data;
+                ViewBag.Instructors = (await _instructorService.GetAllAsync()).Data;
                 return View(dto);
             }
 
@@ -91,12 +87,23 @@ namespace Learnify.UI.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // 🗑️ Kurs silme
-        [HttpPost, ValidateAntiForgeryToken]
+        // ❌ Kurs silme işlemi
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
             await _courseService.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        // 📘 Kurs detay sayfası (isteğe bağlı)
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var result = await _courseService.GetCourseDetailsAsync(id);
+            if (!result.Success || result.Data == null)
+                return NotFound();
+
+            return View(result.Data);
         }
     }
 }

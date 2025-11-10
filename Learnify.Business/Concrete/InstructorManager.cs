@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using Learnify.Business.Abstract;
+using Learnify.Business.Utilities.Results;
 using Learnify.DTO.DTOs.InstructorDto;
 using Learnify.Entity.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Learnify.Business.Concrete
 {
@@ -16,57 +14,61 @@ namespace Learnify.Business.Concrete
         private readonly RoleManager<IdentityRole<int>> _roleManager;
         private readonly IMapper _mapper;
 
-        public InstructorManager(UserManager<AppUser> userManager, RoleManager<IdentityRole<int>> roleManager, IMapper mapper)
+        public InstructorManager(UserManager<AppUser> userManager,
+                                 RoleManager<IdentityRole<int>> roleManager,
+                                 IMapper mapper)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _mapper = mapper;
         }
 
-        // 🔹 Tüm eğitmenleri getir
-        public async Task<List<ResultInstructorDto>> GetAllAsync()
+        public async Task<IDataResult<List<ResultInstructorDto>>> GetAllAsync()
         {
             var users = await _userManager.Users
                 .Where(u => u.IsActive)
                 .ToListAsync();
 
             var instructors = new List<AppUser>();
+
             foreach (var user in users)
             {
                 if (await _userManager.IsInRoleAsync(user, "Instructor"))
                     instructors.Add(user);
             }
 
-            return _mapper.Map<List<ResultInstructorDto>>(instructors);
+            var mapped = _mapper.Map<List<ResultInstructorDto>>(instructors);
+            return new SuccessDataResult<List<ResultInstructorDto>>(mapped);
         }
 
-        // 🔹 ID’ye göre getir
-        public async Task<ResultInstructorDto?> GetByIdAsync(int id)
+        public async Task<IDataResult<ResultInstructorDto>> GetByIdAsync(int id)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
-            if (user == null || !await _userManager.IsInRoleAsync(user, "Instructor"))
-                return null;
+            var user = await _userManager.Users
+                .FirstOrDefaultAsync(u => u.Id == id && u.IsActive);
 
-            return _mapper.Map<ResultInstructorDto>(user);
+            if (user == null || !await _userManager.IsInRoleAsync(user, "Instructor"))
+                return new ErrorDataResult<ResultInstructorDto>("Eğitmen bulunamadı.");
+
+            var mapped = _mapper.Map<ResultInstructorDto>(user);
+            return new SuccessDataResult<ResultInstructorDto>(mapped);
         }
 
-        // 🔹 Aktif eğitmenler
-        public async Task<List<ResultInstructorDto>> GetActiveInstructorsAsync()
+        public async Task<IDataResult<List<ResultInstructorDto>>> GetActiveInstructorsAsync()
         {
             var users = await _userManager.Users.Where(u => u.IsActive).ToListAsync();
-            var activeInstructors = new List<AppUser>();
+            var list = new List<AppUser>();
 
             foreach (var user in users)
             {
                 if (await _userManager.IsInRoleAsync(user, "Instructor"))
-                    activeInstructors.Add(user);
+                    list.Add(user);
             }
 
-            return _mapper.Map<List<ResultInstructorDto>>(activeInstructors);
+            var mapped = _mapper.Map<List<ResultInstructorDto>>(list);
+            return new SuccessDataResult<List<ResultInstructorDto>>(mapped);
         }
 
-        // ➕ Eğitmen ekle
-        public async Task<IdentityResult> AddAsync(CreateInstructorDto dto)
+        public async Task<IResult> AddAsync(CreateInstructorDto dto)
         {
             var user = new AppUser
             {
@@ -77,19 +79,21 @@ namespace Learnify.Business.Concrete
                 IsActive = true
             };
 
-            var result = await _userManager.CreateAsync(user, "Default123*"); // geçici şifre
-            if (result.Succeeded)
-                await _userManager.AddToRoleAsync(user, "Instructor");
+            var result = await _userManager.CreateAsync(user, "Default123*");
 
-            return result;
+            if (!result.Succeeded)
+                return new ErrorResult("Eğitmen oluşturulamadı.");
+
+            await _userManager.AddToRoleAsync(user, "Instructor");
+
+            return new SuccessResult("Eğitmen başarıyla eklendi.");
         }
 
-        // ✏️ Güncelle
-        public async Task<IdentityResult> UpdateAsync(UpdateInstructorDto dto)
+        public async Task<IResult> UpdateAsync(UpdateInstructorDto dto)
         {
             var user = await _userManager.FindByIdAsync(dto.Id.ToString());
             if (user == null)
-                return IdentityResult.Failed(new IdentityError { Description = "Kullanıcı bulunamadı." });
+                return new ErrorResult("Eğitmen bulunamadı.");
 
             user.FullName = dto.FullName;
             user.Email = dto.Email;
@@ -97,18 +101,24 @@ namespace Learnify.Business.Concrete
             user.Profession = dto.Profession;
             user.IsActive = dto.IsActive;
 
-            return await _userManager.UpdateAsync(user);
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+                return new ErrorResult("Eğitmen güncellenemedi.");
+
+            return new SuccessResult("Eğitmen güncellendi.");
         }
 
-        // ❌ Sil
-        public async Task DeleteAsync(int id)
+        public async Task<IResult> DeleteAsync(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user != null)
-            {
-                user.IsActive = false;
-                await _userManager.UpdateAsync(user);
-            }
+            if (user == null)
+                return new ErrorResult("Eğitmen bulunamadı.");
+
+            user.IsActive = false;
+            await _userManager.UpdateAsync(user);
+
+            return new SuccessResult("Eğitmen pasife alındı.");
         }
     }
 }
